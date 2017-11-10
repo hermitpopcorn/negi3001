@@ -1,0 +1,121 @@
+.transaction {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    padding-left: 0.5em;
+    clear: both;
+    margin-bottom: 0.25em;
+}
+.transaction h1 {
+    display: inline-block;
+    font-size: 2em;
+    align-self: flex-end;
+}
+
+@media only screen and (max-width: 768px) {
+    .transaction h1 {
+        margin-left: 0;
+        float: none;
+        display: block;
+        width: 100%;
+    }
+}
+.transaction.b {
+    background-color: lighten($blue, 10%);
+}
+
+.transaction .transaction-head {
+    padding-bottom: 0.2em;
+}
+.transaction .transaction-head .account {
+    display: inline-block;
+    padding: 0.2em 0.6em;
+}
+.transaction .transaction-head .actions {
+    float: right;
+    font-size: 0.75em;
+    margin-top: 0.4em;
+    margin-right: 1em;
+}
+
+.transaction-body {
+    background-color: inherit;
+    overflow: hidden;
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    padding: 0.5em;
+}
+.transaction > .transaction-body.white {
+    background-color: #fff !important;
+}
+
+.transaction.e, .transaction.e .transaction-head .account {
+    background-color: lighten($red, 35%);
+}
+.transaction.e > .transaction-head, .transaction.e > .transaction-body {
+    background-color: lighten($red, 45%);
+}
+.transaction.e h1 {
+    color: $red;
+}
+.transaction.i, .transaction.i .transaction-head .account {
+    background-color: lighten($green, 35%);
+}
+.transaction.i > .transaction-head, .transaction.i > .transaction-body {
+    background-color: lighten($green, 45%);
+}
+.transaction.i h1 {
+    color: $green;
+}
+.transaction.x, .transaction.x .transaction-head .account {
+    background-color: lighten($purple, 35%);
+}
+.transaction.x > .transaction-head, .transaction.x > .transaction-body {
+    background-color: lighten($purple, 45%);
+}
+.transaction.x h1 {
+    color: $purple;
+}
+
+.transaction .transaction-note {
+    display: flex;
+    flex-direction: column;
+}
+.transaction span.date {
+    font-weight: bold;
+    font-size: 0.75em;
+}
+
+.transaction.transaction-padded-left {
+    padding-left: 1em;
+}
+.transaction.transaction-mini .transaction-body {
+    padding-top: 0;
+}
+.transaction.transaction-mini .transaction-body h1 {
+    font-size: 1.5em;
+    float: left;
+    margin-left: 0;
+    margin-right: .5em;
+}
+.transaction.transaction-mini .transaction-body p {
+    margin-bottom: 0.25em;
+}
+
+.transaction-separator {
+    background-color: $white-ter;
+    margin-top: 1.25em;
+    margin-bottom: 0.25em;
+    text-align: center;
+}
+
+.transaction-tags {
+    padding: 0.2em 0.5em;
+}
+.transaction-tags .transaction-tag {
+    color: $cyan;
+    margin-right: 0.5em;
+    cursor: pointer;
+}

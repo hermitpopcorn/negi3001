@@ -1,0 +1,39 @@
+<template>
+    <div class="transaction">
+        <div class="transaction-head">
+            <div class="actions">
+                <router-link :to="{ path: '/transactions/edit/'+transaction.uid }"><i class="fa fa-pencil"></i></router-link>
+                <a href="javascript:;" @click="deleteTransaction(transaction.uid)"><i class="fa fa-remove"></i></a>
+            </div>
+            <span class="account" v-if="transaction.type !== 'x'">{{ transaction.account.name }}</span>
+            <span class="account" v-if="transaction.type === 'x'">
+                <template v-if="transaction.target">
+                    {{ transaction.account.name }} > {{ transaction.target.name }}
+                </template>
+                <template v-else>
+                    {{ transaction.account.name }} > ???
+                </template>
+            </span>
+        </div>
+        <div class="transaction-body">
+            <div class="transaction-note">
+                <span class="date" v-if="transaction.date.split(' ')[1] !== '00:00:00'">at {{ $options.filters.date(transaction.date).split(' ').slice(-2).join(' ') }}</span>
+                <p v-if="transaction.note">{{ transaction.note }}</p>
+            </div>
+            <h1 v-html="$options.filters.currency(transaction.amount)"/>
+        </div>
+        <div class="transaction-tags" v-if="transaction.tags.length > 0">
+            Tags:
+            <template v-for="tag in transaction.tags">
+                <router-link tag="span" class="transaction-tag" :to="{ path: '/transactions/list/tagged/'+tag }">#{{ tag }}</router-link>
+            </template>
+        </div>
+    </div>
+</template>
+
+<script>
+export default {
+    name: 'transaction',
+    props: ['transaction']
+}
+</script>
