@@ -26,7 +26,7 @@ class TransactionController extends Controller
     public function show($transactionUID)
     {
         $transaction = Transaction::with('account')->with('target')->with('tags')->where('uid', $transactionUID)->first();
-        if($transaction) { if($transaction->account->user_id === Auth::user()->id) {
+        if($transaction) { if(intval($transaction->account->user_id) === intval(Auth::user()->id)) {
             return response()->json(['transaction' => $transaction]);
         }}
 

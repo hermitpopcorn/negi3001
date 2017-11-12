@@ -201,7 +201,7 @@ class Account extends Model
         $target = self::where('uid', $accountUID)->first();
         if(!$target) { return false; }
 
-        if($user->id === $target->user_id) {
+        if(intval($user->id) === intval($target->user_id)) {
             foreach($target->transactions as $transaction) {
                 $transaction->tags()->detach();
                 $transaction->delete();

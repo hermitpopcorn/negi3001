@@ -131,7 +131,7 @@ class Transaction extends Model
         $target = self::where('uid', $transactionUID)->first();
         if(!$target) { return false; }
 
-        if($user->id === $target->account->user_id) {
+        if(intval($user->id) === intval($target->account->user_id)) {
             $target->tags()->detach();
             return $target->delete();
         } else {
