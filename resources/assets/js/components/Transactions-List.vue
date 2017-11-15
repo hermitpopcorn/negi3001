@@ -314,21 +314,15 @@ export default {
 
             if(self.transactions.length > 0) {
                 for(let i = 0; i < self.transactions.length; i++) {
-                    if(self.transactions[i].account.isSink == false) {
-                        if(self.transactions[i].type == 'i') {
-                            income += Number(self.transactions[i].amount)
-                        } else if(self.transactions[i].type == 'e') {
+                    if(self.transactions[i].type == 'i') {
+                        income += Number(self.transactions[i].amount)
+                    } else if(self.transactions[i].type == 'e') {
+                        expense += Number(self.transactions[i].amount)
+                    } else if(self.transactions[i].type == 'x') {
+                        if(!self.transactions[i].account.isSink && self.transactions[i].target.isSink) {
                             expense += Number(self.transactions[i].amount)
-                        } else if(self.transactions[i].type == 'x') {
-                            if(self.transactions[i].target.isSink) {
-                                expense += Number(self.transactions[i].amount)
-                            }
-                        }
-                    } else {
-                        if(self.transactions[i].type == 'x') {
-                            if(self.transactions[i].target.isSink == false) {
-                                income += Number(self.transactions[i].amount)
-                            }
+                        } else if(self.transactions[i].account.isSink && !self.transactions[i].target.isSink) {
+                            income += Number(self.transactions[i].amount)
                         }
                     }
                 }
