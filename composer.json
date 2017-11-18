@@ -1,8 +1,8 @@
 {
-    "name": "laravel/laravel",
-    "description": "The Laravel Framework.",
-    "keywords": ["framework", "laravel"],
-    "license": "MIT",
+    "name": "hermitpopcorn/negi3001",
+    "description": "A simple income/expense recording app",
+    "keywords": ["laravel", "expense", "record"],
+    "license": "GPL-3.0",
     "type": "project",
     "require": {
         "php": ">=7.0.0",
