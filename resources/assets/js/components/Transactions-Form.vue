@@ -242,7 +242,7 @@ export default {
             var self = this
 
             let date = new Date(transaction.date)
-            self.$router.push('/transactions/list/'+date.getFullYear()+'/'+(parseInt(date.getMonth()+1)))
+            self.$router.push('/transactions/list/'+date.getFullYear()+'/'+(parseInt(date.getMonth()+1))+'/'+transaction.uid)
         }
     }
 }

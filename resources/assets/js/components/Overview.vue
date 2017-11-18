@@ -55,16 +55,18 @@
         <div class="accounts-overview">
             <div class="box-group">
                 <template v-for="account in accounts">
-                    <div class="box account" :class="{ 'regular': !account.isSink, 'sink': account.isSink }">
+                    <div class="box account" :class="account.type">
                         <div class="symbol">
                             <span class="icon is-large">
-                                <i class="fa fa-3x fa-book" v-if="account.balance !== null"></i>
-                                <i class="fa fa-3x fa-credit-card" v-if="account.balance === null"></i>
+                                <i class="fa fa-3x fa-bank" v-if="account.type == 'regular'"></i>
+                                <i class="fa fa-3x fa-anchor" v-if="account.type == 'noncurrent'"></i>
+                                <i class="fa fa-3x fa-credit-card" v-if="account.type == 'sink'"></i>
                             </span>
                         </div>
                         <div class="info">
-                            <p class="type" v-if="account.balance !== null">Regular Account</p>
-                            <p class="type" v-if="account.balance === null">Money Sink</p>
+                            <p class="type" v-if="account.type == 'regular'">Regular Account</p>
+                            <p class="type" v-if="account.type == 'noncurrent'">Noncurrent Account</p>
+                            <p class="type" v-if="account.type == 'sink'">Money Sink</p>
 
                             <p class="name">{{ account.name }}</p>
 
@@ -109,17 +111,18 @@ export default {
             self.$http.get('api/accounts').then(response => {
                 self.accounts = response.body.accounts
                 for(let i = 0; i < self.accounts.length; i++) {
-                    if(!self.accounts[i].isSink) {
-                        self.$set(self.accounts[i], 'balance', 0)
-                        self.$http.get('api/stats/balance/'+self.accounts[i].uid).then(response => {
-                            self.accounts[i].balance = response.body.balance
-                            self.$set(self.accounts[i], 'balance', response.body.balance)
-                        }, response => {
-                            self.$set(self.accounts[i], 'balance', 0)
-                        })
-                    } else {
-                        self.$set(self.accounts[i], 'balance', null)
+                    if(self.accounts[i].type == 'sink') {
+                        self.$set(self.accounts[i], 'balance', null);
+                        continue;
                     }
+
+                    self.$set(self.accounts[i], 'balance', 0)
+                    self.$http.get('api/stats/balance/'+self.accounts[i].uid).then(response => {
+                        self.accounts[i].balance = response.body.balance
+                        self.$set(self.accounts[i], 'balance', response.body.balance)
+                    }, response => {
+                        self.$set(self.accounts[i], 'balance', 0)
+                    })
                 }
             }, response => {
                 self.accounts = []

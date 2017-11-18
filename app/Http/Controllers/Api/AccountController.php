@@ -30,12 +30,12 @@ class AccountController extends Controller
     {
         $name = $request->input('name');
         $initialBalance = $request->input('initialBalance');
-        $isSink = $request->input('isSink');
+        $type = $request->input('type');
 
         $insert = false;
 
         // Insert acount
-        $newAccount = Account::store(Auth::user(), $name, $initialBalance, (boolean) $isSink);
+        $newAccount = Account::store(Auth::user(), $name, $initialBalance, $type);
 
         if($newAccount) {
             return response()->json([
@@ -53,7 +53,7 @@ class AccountController extends Controller
     {
         $name = $request->input('name');
         $initialBalance = $request->input('initialBalance');
-        $isSink = $request->input('isSink');
+        $type = $request->input('type');
 
         $update = false;
 
@@ -68,7 +68,7 @@ class AccountController extends Controller
         $update = $account->patch([
             'name' => $name,
             'initialBalance' => $initialBalance,
-            'isSink' => (boolean) $isSink
+            'type' => $type
         ]);
 
         if($update) {

@@ -47,7 +47,7 @@
             <div class="box">
                 <template v-for="(transaction, index) in transactions">
                     <div class="transaction-separator" v-if="index == 0 || transactions[index - 1].date.split(' ')[0] != transaction.date.split(' ')[0]">{{ transaction.date.split(' ')[0] | date }}</div>
-                    <transaction :class="transaction.type" :transaction="transaction"></transaction>
+                    <transaction :class="transaction.type" :transaction="transaction" @updated="onTransactionUpdated()"></transaction>
                 </template>
                 <template v-if="!transactions">
                     <div class="has-text-centered">
@@ -55,7 +55,7 @@
                     </div>
                 </template>
             </div>
-            <div class="box" v-if="!tag">
+            <div class="box" v-if="!tag" id="bontang">
                 <div class="transaction b">
                     <div class="transaction-body white">
                         <span>Starting balance</span>
@@ -88,6 +88,7 @@
 </template>
 
 <script>
+import VueScrollTo from 'vue-scrollto'
 import Transaction from './display/Transaction.vue'
 
 export default {
@@ -95,7 +96,7 @@ export default {
     components: {
         Transaction
     },
-    props: ['year', 'month', 'tag'],
+    props: ['year', 'month', 'transactionUID', 'tag'],
     data: function() {
         return {
             block: false,
@@ -201,38 +202,24 @@ export default {
 
             year = self.cursor.year
             month = self.cursor.month
-            self.getTransactions({ 'year': year, 'month': month}, function() { self.calculatePeriodBalance(); })
+            self.getTransactions({ 'year': year, 'month': month}, function() {
+                self.calculatePeriodBalance();
+
+                if(typeof self.transactionUID !== "undefined") {
+                    setTimeout(function() { VueScrollTo.scrollTo('#' + self.transactionUID, 1000, { 'offset': -25 }) }, 1000)
+                }
+            })
         },
 
-        deleteTransaction: function(transaction) {
+        onTransactionUpdated: function() {
             var self = this
 
-            self.$swal({
-                title: 'Delete Confirmation',
-                text: 'Are you sure?',
-                type: 'warning',
-                showCancelButton: true,
-                confirmButtonColor: '#f86c6b',
-                cancelButtonColor: '#1985ac',
-                confirmButtonText: 'Delete'
-            }).then(function() {
-                self.$http.delete('api/transactions/'+transaction).then(response => {
-                    self.$swal({
-                        title: 'Deleted',
-                        text: 'Transaction has been deleted.',
-                        type: 'success'
-                    })
-
-                    self.getBalance()
-                    self.loadMonthlyData()
-                }, response => {
-                    self.$swal({
-                        title: 'Failure',
-                        text: 'Transaction was not deleted.',
-                        type: 'error'
-                    })
-                })
-            })
+            if(self.tag === undefined) {
+                self.getBalance()
+                self.loadMonthlyData()
+            } else {
+                self.loadTagged(self.tag);
+            }
         },
 
         calculatePeriodBalance: function() {
@@ -241,16 +228,18 @@ export default {
 
             if(self.transactions.length > 0) {
                 for(let i = 0; i < self.transactions.length; i++) {
-                    if(self.transactions[i].account.isSink == false) {
+                    if(self.transactions[i].account.type != 'sink' && self.transactions[i].account.type != 'noncurrent') {
                         if(self.transactions[i].type == 'i') {
                             balance += Number(self.transactions[i].amount)
                         } else if(self.transactions[i].type == 'e') {
                             balance -= Number(self.transactions[i].amount)
-                        } else if(self.transactions[i].type == 'x' && self.transactions[i].target.isSink) {
+                        } else if(self.transactions[i].type == 'x' && self.transactions[i].target === null) {
+                            balance -= Number(self.transactions[i].amount)
+                        } else if(self.transactions[i].type == 'x' && (self.transactions[i].target.type == 'sink' || self.transactions[i].target.type == 'noncurrent')) {
                             balance -= Number(self.transactions[i].amount)
                         }
                     } else {
-                        if(self.transactions[i].type == 'x' && self.transactions[i].target.isSink == false) {
+                        if(self.transactions[i].type == 'x' && (self.transactions[i].target.type != 'sink' && self.transactions[i].target.type != 'noncurrent')) {
                             balance += Number(self.transactions[i].amount)
                         }
                     }
@@ -319,9 +308,13 @@ export default {
                     } else if(self.transactions[i].type == 'e') {
                         expense += Number(self.transactions[i].amount)
                     } else if(self.transactions[i].type == 'x') {
-                        if(!self.transactions[i].account.isSink && self.transactions[i].target.isSink) {
+                        if(self.transactions[i].target === null) {
+                            if(self.transactions[i].account.type != 'sink') {
+                                expense += Number(self.transactions[i].amount)
+                            }
+                        } else if(self.transactions[i].account.type != 'sink' && self.transactions[i].target.type == 'sink') {
                             expense += Number(self.transactions[i].amount)
-                        } else if(self.transactions[i].account.isSink && !self.transactions[i].target.isSink) {
+                        } else if(self.transactions[i].account.type == 'sink' && self.transactions[i].target.type != 'sink') {
                             income += Number(self.transactions[i].amount)
                         }
                     }

@@ -1,5 +1,5 @@
 <template>
-    <div class="transaction">
+    <div class="transaction" :id="transaction.uid">
         <div class="transaction-head">
             <div class="actions">
                 <router-link :to="{ path: '/transactions/edit/'+transaction.uid }"><i class="fa fa-pencil"></i></router-link>
@@ -34,6 +34,37 @@
 <script>
 export default {
     name: 'transaction',
-    props: ['transaction']
+    props: ['transaction'],
+    methods: {
+        deleteTransaction: function(transaction) {
+            var self = this
+
+            self.$swal({
+                title: 'Delete Confirmation',
+                text: 'Are you sure?',
+                type: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#f86c6b',
+                cancelButtonColor: '#1985ac',
+                confirmButtonText: 'Delete'
+            }).then(function() {
+                self.$http.delete('api/transactions/'+transaction).then(response => {
+                    self.$swal({
+                        title: 'Deleted',
+                        text: 'Transaction has been deleted.',
+                        type: 'success'
+                    })
+
+                    self.$emit('updated');
+                }, response => {
+                    self.$swal({
+                        title: 'Failure',
+                        text: 'Transaction was not deleted.',
+                        type: 'error'
+                    })
+                })
+            })
+        }
+    }
 }
 </script>

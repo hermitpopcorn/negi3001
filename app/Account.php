@@ -13,16 +13,16 @@ class Account extends Model
     use Eloquence, Mappable;
 
     protected $fillable = [
-        'uid', 'user_id', 'name', 'initial_balance', 'is_sink'
+        'uid', 'user_id', 'name', 'initial_balance', 'type'
     ];
 
     protected $hidden = [
          'created_at', 'updated_at',
-         'user_id', 'id', 'initial_balance', 'is_sink'
+         'user_id', 'id', 'initial_balance'
     ];
 
-    protected $maps = ['initialBalance' => 'initial_balance', 'isSink' => 'is_sink'];
-    protected $appends = ['initialBalance', 'isSink'];
+    protected $maps = ['initialBalance' => 'initial_balance'];
+    protected $appends = ['initialBalance'];
 
     public function user()
     {
@@ -39,17 +39,12 @@ class Account extends Model
         return $this->hasMany('\App\Transaction', 'target_id')->where('type', 'x');
     }
 
-    public function getIsSinkAttribute($value)
-    {
-        return (boolean) $value;
-    }
-
     public static function createDefaultAccountForUser($user)
     {
         return self::store($user, "Wallet", 0, false);
     }
 
-    public static function store($user, $name, $initialBalance, $isSink)
+    public static function store($user, $name, $initialBalance, $type)
     {
         $account = new self();
 
@@ -68,7 +63,7 @@ class Account extends Model
         $account->uid = $uid;
         $account->name = $name;
         $account->initial_balance = $initialBalance;
-        $account->is_sink = $isSink;
+        $account->type = $type;
         if($account->save()) {
             return $account;
         } else {
@@ -80,7 +75,7 @@ class Account extends Model
     {
         $this->name = $newData['name'] ?: "Account";
         $this->initial_balance = $newData['initialBalance'] ?: 0;
-        $this->is_sink = (boolean) $newData['isSink'];
+        $this->type = $newData['type'];
 
         return $this->save();
     }
@@ -115,9 +110,9 @@ class Account extends Model
 
         // Calculate transfers
         if(!$uptilDate) {
-            $transfers = $this->transfers;
+            $transfers = $this->transfers()->whereHas('account')->get();
         } else {
-            $transfers = $this->transfers()->where('date', '<=', $uptilDate)->get();
+            $transfers = $this->transfers()->whereHas('account')->where('date', '<=', $uptilDate)->get();
         }
         foreach($transfers as $transfer) {
             $balance += $transfer->amount;
@@ -155,8 +150,12 @@ class Account extends Model
                     return $q
                         ->where('account_id', $accountID)
                         ->where('type', 'x')
-                        ->whereHas('target', function($q2) {
-                            $q2->where('is_sink', true);
+                        ->where(function($q2) {
+                            $q2->whereHas('target', function($q3) {
+                                    $q3->where('type', 'sink');
+                                })
+                                ->orDoesntHave('target')
+                            ;
                         })
                     ;
                 })
@@ -174,7 +173,7 @@ class Account extends Model
             $transfers = $this->transfers();
             $transfers = Transaction::queryWhereBetweenDate($transfers, $year, $month, $day);
             $transfers = $transfers->whereHas('account', function($q) {
-                $q->where('is_sink', true);
+                $q->where('type', 'sink');
             })->get();
 
             // Sum total amount from transfers

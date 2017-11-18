@@ -1,24 +1,25 @@
 <template>
     <section class="section">
-        <div class="columns accounts-list">
+        <div class="columns accounts-list is-multiline">
             <template v-for="(account, index) in accounts">
-                <div class="column">
-                    <div class="account box is-white " :class="{ 'has-green-bg': !account.isSink, 'has-yellow-bg': account.isSink }">
+                <div class="column is-one-third">
+                    <div class="account box is-white " :class="account.type">
                         <div style="position:relative;z-index: 1">
                             <h1>{{ account.name }}</h1>
-                            <p v-if="!account.isSink">Initial balance: <span class="is-unbreakable" v-html="$options.filters.currency(account.initialBalance)"/></p>
-                            <p v-if="account.isSink">marked as a money sink</p>
+                            <p v-if="account.type != 'sink'">Initial balance: <span class="is-unbreakable" v-html="$options.filters.currency(account.initialBalance)"/></p>
+                            <p v-if="account.type == 'sink'">marked as a money sink</p>
                         </div>
-                        <template v-if="!account.isSink">
-                            <div class="symbol">
-                                <i class="fa fa-bank"></i>
-                            </div>
-                        </template>
-                        <template v-if="account.isSink">
-                            <div class="symbol">
+                        <div class="symbol">
+                            <template v-if="account.type == 'regular'">
+                                    <i class="fa fa-bank"></i>
+                            </template>
+                            <template v-if="account.type == 'noncurrent'">
+                                <i class="fa fa-anchor"></i>
+                            </template>
+                            <template v-if="account.type == 'sink'">
                                 <i class="fa fa-credit-card"></i>
-                            </div>
-                        </template>
+                            </template>
+                        </div>
                         <div class="has-margin-top-10">
                             <div class="columns">
                                 <div class="column is-half">
@@ -61,19 +62,28 @@
                                     <input type="text" ref="nameInput" class="input" v-model="form.name"></input>
                                 </div>
                             </div>
-                            <div class="field" v-if="!form.isSink">
+                            <div class="field" v-if="form.type != 'sink'">
                                 <label class="label">Initial Balance</label>
                                 <div class="control is-expanded">
-                                    <vue-numeric ref="initialBalanceInput" class="input text-right" currency="" separator=" " v-model="form.initialBalance" :minus="false" :precision="2" name="initialBalance" :disabled="form.isSink"></vue-numeric>
+                                    <vue-numeric ref="initialBalanceInput" class="input text-right" currency="" separator=" " v-model="form.initialBalance" :minus="false" :precision="2" name="initialBalance" :disabled="(form.type == 'sink')"></vue-numeric>
                                 </div>
                             </div>
                             <div class="field">
-                                <label class="checkbox">
-                                    <input name="isSink" value="true" type="checkbox" v-model="form.isSink">
-                                    <b>Mark as money sink</b>
-                                </label>
+                                <label class="label">Account</label>
+                                <div class="control is-expanded">
+                                    <div class="select is-fullwidth">
+                                        <select v-model="form.type">
+                                            <option value="regular">Regular</option>
+                                            <option value="noncurrent">Noncurrent</option>
+                                            <option value="sink">Money Sink</option>
+                                        </select>
+                                    </div>
+                                </div>
                                 <p class="form-text">
-                                    Accounts marked as money sink will not have its current balance shown on the overview page.
+                                    The amount of balance in accounts marked as <b>noncurrent</b> will not be counted towards
+                                    the statistic total.
+                                    <br/>
+                                    Accounts marked as <b>money sink</b> will not have its current balance shown on the overview page.
                                     The account's balance, expense, and income will not be counted towards the statistic total,
                                     also, transfers to the account will be counted as an expense, and transfers from the account
                                     will be counted as an income.
@@ -105,7 +115,7 @@ export default {
                 uid: null,
                 name: "",
                 initialBalance: 0,
-                isSink: false
+                type: 'regular'
             }
         }
     },
@@ -135,7 +145,7 @@ export default {
             this.$set(this.form, 'uid', null)
             this.$set(this.form, 'name', "")
             this.$set(this.form, 'initialBalance', 0)
-            this.$set(this.form, 'isSink', false)
+            this.$set(this.form, 'type', 'regular')
             this.$set(this.form, 'block', false)
             this.$set(this.form, 'show', true)
         },
@@ -149,7 +159,7 @@ export default {
                 self.$set(self.form, 'uid', response.body.account.uid)
                 self.$set(self.form, 'name', response.body.account.name)
                 self.$set(self.form, 'initialBalance', response.body.account.initialBalance)
-                self.$set(self.form, 'isSink', response.body.account.isSink == 1 ? true : false)
+                self.$set(self.form, 'type', response.body.account.type)
                 self.$set(self.form, 'block', false)
                 self.$set(self.form, 'show', true)
             }, response => {
@@ -203,8 +213,8 @@ export default {
 
             var data = {
                 name: self.form.name,
-                initialBalance: self.form.isSink ? 0 : self.form.initialBalance,
-                isSink: self.form.isSink
+                initialBalance: (self.form.type == 'sink') ? 0 : self.form.initialBalance,
+                type: self.form.type
             }
 
             if(typeof self.form.uid == "undefined" || self.form.uid == null) {

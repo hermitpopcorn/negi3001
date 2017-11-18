@@ -79,7 +79,7 @@
                         <transition name="slide-fade">
                             <li v-show="expenseTransactionsVisibility.includes(tagName)">
                                 <template v-for="(transaction, index) in tag.transactions">
-                                    <transaction :class="transaction.type" :transaction="transaction"></transaction>
+                                    <transaction :class="transaction.type" :transaction="transaction" v-if="transaction.mark == 'expense'" @updated="onTransactionUpdated()"></transaction>
                                 </template>
                             </li>
                         </transition>
@@ -102,7 +102,7 @@
                         <transition name="slide-fade">
                             <li v-show="incomeTransactionsVisibility.includes(tagName)">
                                 <template v-for="(transaction, index) in tag.transactions">
-                                    <transaction :class="transaction.type" :transaction="transaction"></transaction>
+                                    <transaction :class="transaction.type" :transaction="transaction" v-if="transaction.mark == 'income'" @updated="onTransactionUpdated()"></transaction>
                                 </template>
                             </li>
                         </transition>
@@ -217,12 +217,14 @@ export default {
                 if(i.tags.length > 0) {
                     for(var v of i.tags) {
                         if(typeof self.tags[v] === "undefined") {
+                            // initialize tag's array if not defined yet
                             self.tags[v] = { transactions: [] }
                         }
                         self.tags[v].transactions.push(i)
                     }
                 } else {
                     if(typeof self.tags["untagged"] === "undefined") {
+                        // initialize untagged array if not defined yet
                         self.tags["untagged"] = { transactions: [] }
                     }
                     self.tags["untagged"].transactions.push(i)
@@ -239,12 +241,23 @@ export default {
                 for(var x of self.tags[i].transactions) {
                     if(x.type == 'i') {
                         self.tags[i].totalIncome += Number(x.amount)
+                        x.mark = 'income';
                     } else if(x.type == 'e') {
                         self.tags[i].totalExpense += Number(x.amount)
-                    } else if(x.type == 'x' && x.target.isSink) {
-                        self.tags[i].totalExpense += Number(x.amount)
-                    } else if(x.type == 'x' && x.account.isSink && x.target.isSink == false) {
-                        self.tags[i].totalIncome += Number(x.amount)
+                        x.mark = 'expense';
+                    } else if(x.type == 'x') {
+                        if(x.target === null) {
+                            if(x.account.type != 'sink') {
+                                self.tags[i].totalExpense += Number(x.amount)
+                                x.mark = 'expense';
+                            }
+                        } else if(x.account.type != 'sink' && x.target.type == 'sink') {
+                            self.tags[i].totalExpense += Number(x.amount)
+                            x.mark = 'expense';
+                        } else if(x.account.type == 'sink' && x.target.type != 'sink') {
+                            self.tags[i].totalIncome += Number(x.amount)
+                            x.mark = 'income';
+                        }
                     }
                 }
             }
@@ -253,6 +266,12 @@ export default {
             self.sortedIncomeTags = self.sortTags('i', self.tags)
 
             return true
+        },
+
+        onTransactionUpdated: function() {
+            var self = this
+
+            self.loadData()
         },
 
         loadData: function() {

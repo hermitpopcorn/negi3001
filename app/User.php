@@ -36,7 +36,7 @@ class User extends Authenticatable
     {
         $balance = 0;
 
-        $accounts = $this->accounts()->where('is_sink', false)->get();
+        $accounts = $this->accounts()->where('type', '!=', 'sink')->where('type', '!=', 'noncurrent')->get();
         foreach($accounts as $account) {
             $balance += $account->getBalance($uptilDate);
         }
@@ -51,7 +51,7 @@ class User extends Authenticatable
     private function calcIncomeOrTransfer($mode, $year = null, $month = null, $day = null)
     {
         $total = 0;
-        $accounts = $this->accounts()->where('is_sink', 0)->get();
+        $accounts = $this->accounts()->where('type', '!=', 'sink')->get();
 
         foreach($accounts as $account) {
             if($mode === 'i') {

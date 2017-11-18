@@ -128,6 +128,9 @@ section.section {
 .accounts-overview .box.account.regular {
     background: darken($green, 10%);
 }
+.accounts-overview .box.account.noncurrent {
+    background: darken($purple, 10%);
+}
 .accounts-overview .box.account.sink {
     background: darken($red, 10%);
 }
@@ -161,6 +164,9 @@ section.section {
 
 .accounts-list .box.account.regular {
     background: darken($green, 10%);
+}
+.accounts-list .box.account.noncurrent {
+    background: darken($purple, 10%);
 }
 .accounts-list .box.account.sink {
     background: darken($red, 10%);

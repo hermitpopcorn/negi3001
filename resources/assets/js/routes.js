@@ -29,6 +29,12 @@ export var routes = [
                 props: true
             },
             {
+                path: 'list/:year(\\d+)/:month(\\d+)/:transactionUID',
+                name: 'transactions.list.jumpscroll',
+                component: require('./components/Transactions-List.vue'),
+                props: true
+            },
+            {
                 path: 'list/tagged/:tag',
                 name: 'transactions.list.tagged',
                 component: require('./components/Transactions-List.vue'),
