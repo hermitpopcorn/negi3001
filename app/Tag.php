@@ -41,6 +41,7 @@ class Tag extends Model
                 return false;
             }
         }
+        $tag = trim($tag, ",");
 
         // Look for existing tag with the same name:
         // if there is one, just return that tag's ID,
