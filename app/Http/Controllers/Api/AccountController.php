@@ -61,7 +61,7 @@ class AccountController extends Controller
         $account = Account::where('uid', $accountUID)->first();
         if(!$account) {
             return response()->json(['message' => "Account not found."], 404);
-        } else if($account->user_id !== Auth::user()->id) {
+        } else if(intval($account->user_id) !== intval(Auth::user()->id)) {
             return response()->json(['message' => "Account not found."], 404);
         }
 
