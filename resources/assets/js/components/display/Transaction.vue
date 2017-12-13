@@ -18,7 +18,7 @@
         <div class="transaction-body">
             <div class="transaction-note">
                 <span class="date" v-if="transaction.date.split(' ')[1] !== '00:00:00'">at {{ $options.filters.date(transaction.date).split(' ').slice(-2).join(' ') }}</span>
-                <p v-if="transaction.note">{{ transaction.note }}</p>
+                <p v-if="transaction.note" v-html="$options.filters.breakWhitespaces(transaction.note)"></p>
             </div>
             <h1 v-html="$options.filters.currency(transaction.amount)"/>
         </div>
@@ -64,6 +64,11 @@ export default {
                     })
                 })
             })
+        }
+    },
+    filters: {
+        breakWhitespaces: function (value) {
+            return value.replace(/(?:\r\n|\r|\n)/g, '<br />')
         }
     }
 }
