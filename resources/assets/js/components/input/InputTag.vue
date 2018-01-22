@@ -52,9 +52,12 @@ export default {
             while(tag[0] == "#") {
                 tag = tag.slice(1);
             }
-            if (tag && !this.tags.includes(tag) && this.validateIfNeeded(tag)) {
-                this.tags.push(tag);
-                this.tagChange();
+            var tags = tag.split(/[,|#|\s]/)
+            for(tag of tags) {
+                if (tag && !this.tags.includes(tag) && this.validateIfNeeded(tag)) {
+                    this.tags.push(tag);
+                    this.tagChange();
+                }
             }
             this.newTag = '';
         },
