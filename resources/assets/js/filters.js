@@ -53,12 +53,14 @@ export default {
         var dateString = date[2] + " " + months[date[1] - 1] + " " + date[0]
         // time
         if(typeof time != "undefined") {
-            time = time.split(':')
-            let suffix = (parseInt(time[0]) >= 12)? 'PM' : 'AM';
-            let hour = (parseInt(time[0]) > 12)? parseInt(time[0]) - 12 : time[0];
+            if(time !== "00:00:00") {
+                time = time.split(':')
+                let suffix = (parseInt(time[0]) >= 12)? 'PM' : 'AM';
+                let hour = (parseInt(time[0]) > 12)? parseInt(time[0]) - 12 : time[0];
                 hour = (hour == 0 || hour == '00')? 12 : hour;
 
-            dateString = dateString + " " + hour + ":" + time[1] + " " + suffix
+                dateString = dateString + " " + hour + ":" + time[1] + " " + suffix
+            }
         }
 
         return dateString

@@ -17,7 +17,12 @@
         </div>
         <div class="transaction-body">
             <div class="transaction-note">
-                <span class="date" v-if="transaction.date.split(' ')[1] !== '00:00:00'">at {{ $options.filters.date(transaction.date).split(' ').slice(-2).join(' ') }}</span>
+                <template v-if="displayDate">
+                    <span class="date" v-if="transaction.date">{{ $options.filters.date(transaction.date) }}</span>
+                </template>
+                <template v-else>
+                    <span class="date" v-if="transaction.date.split(' ')[1] !== '00:00:00'">at {{ $options.filters.date(transaction.date).split(' ').slice(-2).join(' ') }}</span>
+                </template>
                 <p v-if="transaction.note" v-html="$options.filters.breakWhitespaces(transaction.note)"></p>
             </div>
             <h1 v-html="$options.filters.currency(transaction.amount)"/>
@@ -34,7 +39,7 @@
 <script>
 export default {
     name: 'transaction',
-    props: ['transaction'],
+    props: ['transaction', 'displayDate'],
     methods: {
         deleteTransaction: function(transaction) {
             var self = this

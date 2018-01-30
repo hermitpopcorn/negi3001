@@ -72,6 +72,79 @@ class Transaction extends Model
         return $q->get();
     }
 
+    public static function search($user,
+        $accountUID = null, $type = null, $amount = 0, $equality = '=',
+        $date = null, $dateRange = '=', $note = null, $tags = null,
+        $orderBy = 'date', $orderArrangement = 'desc'
+    )
+    {
+        $q = self::with('account')->with('target')->with('tags');
+
+        if($accountUID) {
+            $q = $q->where(function($q2) use (&$accountUID) {
+                $q2 = $q2->whereHas('account', function($q3) use (&$accountUID) {
+                    $q3->where('uid', $accountUID);
+                })->orWhereHas('target', function($q3) use (&$accountUID) {
+                    $q3->where('uid', $accountUID);
+                });
+            });
+        } else {
+            $q = $q->whereHas('account', function($q2) use (&$user) {
+                $q2->where('user_id', $user->id);
+            });
+        }
+
+        if($type) {
+            if($type == "income") { $type = "i"; }
+            if($type == "expense") { $type = "e"; }
+            if($type == "transfer") { $type = "x"; }
+            $q = $q->where('type', $type);
+        }
+
+        if($amount > 0) {
+            $q = $q->where('amount', $equality, $amount);
+        }
+
+        if($date) {
+            // check if with time
+            $date = explode(" ", $date);
+            if(count($date) == 2) {
+                // with time
+                $q = $q->where('date', $dateRange, $date[0] . " " . $date[1]);
+            } else {
+                // just the date
+                $date = $date[0];
+                if($dateRange == '=') {
+                    $q = $q->whereBetween('date', ["{$date} 00:00:00", "{$date} 23:59:59"]);
+                } else
+                if($dateRange == '>=' || $dateRange == '<') {
+                    $q = $q->where('date', $dateRange, "{$date} 00:00:00");
+                } else
+                if($dateRange == '>' || $dateRange == '<=') {
+                    $q = $q->where('date', $dateRange, "{$date} 23:59:59");
+                } else
+                if($dateRange == '<>') {
+                    $q = $q->whereNotBetween('date', ["{$date} 00:00:00", "{$date} 23:59:59"]);
+                }
+            }
+        }
+
+        if($note) {
+            $q = $q->whereRaw("MATCH(note) AGAINST (?)", [$note]);
+        }
+
+        if($tags) {
+            foreach($tags as $tag) {
+                $q->whereHas('tags', function($q2) use (&$tag) {
+                    $q2->where('name', $tag);
+                });
+            }
+        }
+
+        $q = $q->orderBy($orderBy, $orderArrangement);
+        return $q->get();
+    }
+
     public static function store($user, $account, $target, $type, $amount, $note, $date)
     {
         $new = new self();

@@ -6,6 +6,7 @@
             </div>
             <div class="is-pulled-right">
                 <router-link :to="'/transactions/add'" class="button is-primary" exact><i class="fa fa-pencil-square-o"></i> Add New Transaction</router-link>
+                <router-link :to="'/transactions/search'" class="button is-link" exact><i class="fa fa-search"></i> Search</router-link>
             </div>
         </div>
 

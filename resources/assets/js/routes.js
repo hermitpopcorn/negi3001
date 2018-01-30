@@ -51,6 +51,11 @@ export var routes = [
                 name: 'transactions.edit',
                 component: require('./components/Transactions-Form.vue'),
                 props: true
+            },
+            {
+                path: 'search',
+                name: 'transactions.search',
+                component: require('./components/Transactions-Search.vue')
             }
         ]
     },

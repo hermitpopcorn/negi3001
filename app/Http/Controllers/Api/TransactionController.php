@@ -12,12 +12,35 @@ class TransactionController extends Controller
 {
     public function fetch(Request $request)
     {
+        if($request->input('search')) {
+            return $this->search($request);
+        }
+
         $transactions = Transaction::fetch(
             Auth::user(),
             $request->input('year'),
             $request->input('month'),
             $request->input('day'),
             $request->input('tag')
+        );
+
+        return response()->json(['transactions' => $transactions]);
+    }
+
+    private function search(Request $request)
+    {
+        $transactions = Transaction::search(
+            Auth::user(),
+            $request->input('account'),
+            $request->input('type'),
+            $request->input('amount'),
+            $request->input('equality'),
+            $request->input('date'),
+            $request->input('dateRange'),
+            $request->input('note'),
+            $request->input('tags'),
+            $request->input('orderBy'),
+            $request->input('orderArrangement')
         );
 
         return response()->json(['transactions' => $transactions]);
