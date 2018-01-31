@@ -89,6 +89,15 @@
                                     will be counted as an income.
                                 </p>
                             </div>
+                            <div class="field">
+                                <label class="label">Order</label>
+                                <div class="control is-expanded">
+                                    <input type="numeric" ref="orderInput" class="input" v-model="form.ordering"></input>
+                                </div>
+                                <p class="form-text">
+                                    The account will be ordered in the list based on this number, in ascending order.
+                                </p>
+                            </div>
                             <div class="field has-text-right">
                                 <button class="button is-primary" @click="submit">Save</button>
                             </div>
@@ -115,7 +124,8 @@ export default {
                 uid: null,
                 name: "",
                 initialBalance: 0,
-                type: 'regular'
+                type: 'regular',
+                ordering: 0
             }
         }
     },
@@ -146,6 +156,7 @@ export default {
             this.$set(this.form, 'name', "")
             this.$set(this.form, 'initialBalance', 0)
             this.$set(this.form, 'type', 'regular')
+            this.$set(this.form, 'ordering', 0)
             this.$set(this.form, 'block', false)
             this.$set(this.form, 'show', true)
         },
@@ -160,6 +171,7 @@ export default {
                 self.$set(self.form, 'name', response.body.account.name)
                 self.$set(self.form, 'initialBalance', response.body.account.initialBalance)
                 self.$set(self.form, 'type', response.body.account.type)
+                self.$set(self.form, 'ordering', response.body.account.ordering)
                 self.$set(self.form, 'block', false)
                 self.$set(self.form, 'show', true)
             }, response => {
@@ -214,7 +226,8 @@ export default {
             var data = {
                 name: self.form.name,
                 initialBalance: (self.form.type == 'sink') ? 0 : self.form.initialBalance,
-                type: self.form.type
+                type: self.form.type,
+                ordering: self.form.ordering
             }
 
             if(typeof self.form.uid == "undefined" || self.form.uid == null) {

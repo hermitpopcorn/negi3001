@@ -21,7 +21,12 @@ class AccountController extends Controller
 
     public function fetch()
     {
-        $accounts = Auth::user()->accounts()->get();
+        $accounts = Auth::user()->accounts()
+            ->orderBy('ordering', 'asc')
+            ->orderBy('name', 'asc')
+            ->orderBy('id', 'asc')
+            ->get()
+        ;
 
         return response()->json(['accounts' => $accounts->toArray()]);
     }
@@ -54,6 +59,7 @@ class AccountController extends Controller
         $name = $request->input('name');
         $initialBalance = $request->input('initialBalance');
         $type = $request->input('type');
+        $ordering = $request->input('ordering');
 
         $update = false;
 
@@ -68,7 +74,8 @@ class AccountController extends Controller
         $update = $account->patch([
             'name' => $name,
             'initialBalance' => $initialBalance,
-            'type' => $type
+            'type' => $type,
+            'ordering' => $ordering
         ]);
 
         if($update) {

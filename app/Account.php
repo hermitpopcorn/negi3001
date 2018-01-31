@@ -44,7 +44,7 @@ class Account extends Model
         return self::store($user, "Wallet", 0, false);
     }
 
-    public static function store($user, $name, $initialBalance, $type)
+    public static function store($user, $name, $initialBalance, $type, $ordering = 0)
     {
         $account = new self();
 
@@ -64,6 +64,7 @@ class Account extends Model
         $account->name = $name;
         $account->initial_balance = $initialBalance;
         $account->type = $type;
+        $account->ordering = $ordering;
         if($account->save()) {
             return $account;
         } else {
@@ -76,6 +77,7 @@ class Account extends Model
         $this->name = $newData['name'] ?: "Account";
         $this->initial_balance = $newData['initialBalance'] ?: 0;
         $this->type = $newData['type'];
+        $this->ordering = $newData['ordering'];
 
         return $this->save();
     }
