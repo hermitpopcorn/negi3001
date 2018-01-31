@@ -64,4 +64,9 @@ export var routes = [
         name: 'stats.monthly',
         component: require('./components/Stats-Monthly.vue')
     },
+    {
+        path: '*',
+        name: '404',
+        component: require('./components/Error-NotFound.vue')
+    }
 ];
