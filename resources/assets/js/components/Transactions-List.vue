@@ -42,16 +42,21 @@
                 </div>
             </div>
             <div class="box" v-if="tag">
-                <h1 class="has-text-centered">Showing all transactions marked <span class="is-blue">#{{ tag }}</span></h1>
+                <h2 class="has-text-centered">Showing all transactions marked <span class="is-blue">#{{ tag }}</span></h2>
             </div>
             <div class="box">
                 <template v-for="(transaction, index) in transactions">
                     <div class="transaction-separator" v-if="index == 0 || transactions[index - 1].date.split(' ')[0] != transaction.date.split(' ')[0]">{{ transaction.date.split(' ')[0] | date }}</div>
                     <transaction :class="transaction.type" :transaction="transaction" @updated="onTransactionUpdated()"></transaction>
                 </template>
-                <template v-if="!transactions">
+                <template v-if="transactions.length < 1">
                     <div class="has-text-centered">
-                        No transactions recorded in this time frame.
+                        <template v-if="!tag">
+                            No transactions recorded in this time frame.
+                        </template>
+                        <template v-else>
+                            No transactions found.
+                        </template>
                     </div>
                 </template>
             </div>
