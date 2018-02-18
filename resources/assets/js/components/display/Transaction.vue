@@ -52,22 +52,24 @@ export default {
                 confirmButtonColor: '#f86c6b',
                 cancelButtonColor: '#1985ac',
                 confirmButtonText: 'Delete'
-            }).then(function() {
-                self.$http.delete('api/transactions/'+transaction).then(response => {
-                    self.$swal({
-                        title: 'Deleted',
-                        text: 'Transaction has been deleted.',
-                        type: 'success'
-                    })
+            }).then(function(result) {
+                if(result.value === true) {
+                    self.$http.delete('api/transactions/'+transaction).then(response => {
+                        self.$swal({
+                            title: 'Deleted',
+                            text: 'Transaction has been deleted.',
+                            type: 'success'
+                        })
 
-                    self.$emit('updated');
-                }, response => {
-                    self.$swal({
-                        title: 'Failure',
-                        text: 'Transaction was not deleted.',
-                        type: 'error'
+                        self.$emit('updated');
+                    }, response => {
+                        self.$swal({
+                            title: 'Failure',
+                            text: 'Transaction was not deleted.',
+                            type: 'error'
+                        })
                     })
-                })
+                }
             })
         }
     },

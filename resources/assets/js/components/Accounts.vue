@@ -194,22 +194,24 @@ export default {
                 confirmButtonColor: '#f86c6b',
                 cancelButtonColor: '#1985ac',
                 confirmButtonText: 'Delete'
-            }).then(function() {
-                self.$http.delete('api/accounts/'+account).then(response => {
-                    self.$swal({
-                        title: 'Deleted',
-                        text: 'Account has been deleted.',
-                        type: 'success'
-                    })
+            }).then(function(result) {
+                if(result.value === true) {
+                    self.$http.delete('api/accounts/'+account).then(response => {
+                        self.$swal({
+                            title: 'Deleted',
+                            text: 'Account has been deleted.',
+                            type: 'success'
+                        })
 
-                    self.getAccounts()
-                }, response => {
-                    self.$swal({
-                        title: 'Failure',
-                        text: 'Account was not deleted.',
-                        type: 'error'
+                        self.getAccounts()
+                    }, response => {
+                        self.$swal({
+                            title: 'Failure',
+                            text: 'Account was not deleted.',
+                            type: 'error'
+                        })
                     })
-                })
+                }
             })
         },
 
