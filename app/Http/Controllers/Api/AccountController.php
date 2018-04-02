@@ -36,11 +36,12 @@ class AccountController extends Controller
         $name = $request->input('name');
         $initialBalance = $request->input('initialBalance');
         $type = $request->input('type');
+        $ordering = $request->input('ordering');
 
         $insert = false;
 
         // Insert acount
-        $newAccount = Account::store(Auth::user(), $name, $initialBalance, $type);
+        $newAccount = Account::store(Auth::user(), $name, $initialBalance, $type, $ordering);
 
         if($newAccount) {
             return response()->json([
