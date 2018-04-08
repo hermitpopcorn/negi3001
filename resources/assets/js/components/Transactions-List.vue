@@ -112,23 +112,24 @@ export default {
             currentBalance: 0,
             cursor: { },
             totalIncome: 0,
-            totalExpense: 0
+            totalExpense: 0,
+            loadTimeout: null
         }
     },
     watch: {
         'tag'(newValue, oldValue) {
             if(newValue === undefined) {
-                this.loadMonthly();
+                this.loadMonthly()
             } else {
-                this.loadTagged(newValue);
+                this.loadTagged(newValue)
             }
         }
     },
     created: function() {
         if(this.tag === undefined) {
-            this.loadMonthly();
+            this.loadMonthly()
         } else {
-            this.loadTagged(this.tag);
+            this.loadTagged(this.tag)
         }
     },
     methods: {
@@ -193,7 +194,7 @@ export default {
         loadMonthlyData: function() {
             var self = this
 
-            let date, year, month, day;
+            let date, year, month, day
             date = new Date()
             date.setMonth(this.cursor.month - 1)
             date.setYear(this.cursor.year)
@@ -209,7 +210,7 @@ export default {
             year = self.cursor.year
             month = self.cursor.month
             self.getTransactions({ 'year': year, 'month': month}, function() {
-                self.calculatePeriodBalance();
+                self.calculatePeriodBalance()
 
                 if(typeof self.transactionUID !== "undefined") {
                     setTimeout(function() { VueScrollTo.scrollTo('#' + self.transactionUID, 1000, { 'offset': -25 }) }, 1000)
@@ -224,7 +225,7 @@ export default {
                 self.getBalance()
                 self.loadMonthlyData()
             } else {
-                self.loadTagged(self.tag);
+                self.loadTagged(self.tag)
             }
         },
 
@@ -267,12 +268,16 @@ export default {
             self.$set(self.cursor, 'month', date.getMonth() + 1)
             self.$set(self.cursor, 'year', date.getFullYear())
 
-            // Get the starting balance by getting the balance up to the previous month
-            let prev = new Date(date.getTime());
+            let prev = new Date(date.getTime())
             prev.setDate(0)
-            self.getPeriodBalance(prev.getFullYear(), prev.getMonth() + 1, prev.getDate())
-            // Get the transactions for the month
-            self.getTransactions({ 'year': date.getFullYear(), 'month': date.getMonth() + 1}, function() { self.calculatePeriodBalance(); })
+            // Postpone the api request one second into the future to avoid rapid-firing requests
+            clearTimeout(self.loadTimeout)
+            self.loadTimeout = setTimeout(function() {
+                // Get the starting balance by getting the balance up to the previous month
+                self.getPeriodBalance(prev.getFullYear(), prev.getMonth() + 1, prev.getDate())
+                // Get the transactions for the month
+                self.getTransactions({ 'year': date.getFullYear(), 'month': date.getMonth() + 1}, function() { self.calculatePeriodBalance() })
+            }, 500)
         },
 
         nextMonth: function() {
@@ -287,25 +292,29 @@ export default {
             self.$set(self.cursor, 'month', date.getMonth() + 1)
             self.$set(self.cursor, 'year', date.getFullYear())
 
-            // Get the starting balance by getting the balance up to the previous month
-            let prev = new Date(date.getTime());
-            prev.setDate(0)
-            self.getPeriodBalance(prev.getFullYear(), prev.getMonth() + 1, prev.getDate())
-            // Get the transactions for the month
-            self.getTransactions({ 'year': date.getFullYear(), 'month': date.getMonth() + 1}, function() { self.calculatePeriodBalance(); })
+            let next = new Date(date.getTime())
+            next.setDate(0)
+            // Postpone the api request one second into the future to avoid rapid-firing requests
+            clearTimeout(self.loadTimeout)
+            self.loadTimeout = setTimeout(function() {
+                // Get the starting balance by getting the balance up to the next month
+                self.getPeriodBalance(next.getFullYear(), next.getMonth() + 1, next.getDate())
+                // Get the transactions for the month
+                self.getTransactions({ 'year': date.getFullYear(), 'month': date.getMonth() + 1}, function() { self.calculatePeriodBalance() })
+            }, 500)
         },
 
         loadTagged: function(tag) {
             var self = this
 
-            self.getTransactions({ 'tag': tag }, function() { self.calculateIncomeAndExpenseTotals(); })
+            self.getTransactions({ 'tag': tag }, function() { self.calculateIncomeAndExpenseTotals() })
         },
 
         calculateIncomeAndExpenseTotals: function() {
             var self = this
 
-            var income = 0;
-            var expense = 0;
+            var income = 0
+            var expense = 0
 
             if(self.transactions.length > 0) {
                 for(let i = 0; i < self.transactions.length; i++) {

@@ -84,6 +84,9 @@
                             </li>
                         </transition>
                     </template>
+                    <template v-if="Object.keys(sortedExpenseTags).length < 1">
+                        No expense transactions recorded in this time frame.
+                    </template>
                 </ul>
 
                 <h2>Income by tags</h2>
@@ -106,6 +109,9 @@
                                 </template>
                             </li>
                         </transition>
+                    </template>
+                    <template v-if="Object.keys(sortedIncomeTags).length < 1">
+                        No income transactions recorded in this time frame.
                     </template>
                 </ul>
             </div>
@@ -145,7 +151,8 @@ export default {
             transactions: [],
             expenseTransactionsVisibility: [],
             incomeTransactionsVisibility: [],
-            cursor: { }
+            cursor: { },
+            loadTimeout: null
         }
     },
     mounted: function() {
@@ -241,22 +248,22 @@ export default {
                 for(var x of self.tags[i].transactions) {
                     if(x.type == 'i') {
                         self.tags[i].totalIncome += Number(x.amount)
-                        x.mark = 'income';
+                        x.mark = 'income'
                     } else if(x.type == 'e') {
                         self.tags[i].totalExpense += Number(x.amount)
-                        x.mark = 'expense';
+                        x.mark = 'expense'
                     } else if(x.type == 'x') {
                         if(x.target === null) {
                             if(x.account.type != 'sink') {
                                 self.tags[i].totalExpense += Number(x.amount)
-                                x.mark = 'expense';
+                                x.mark = 'expense'
                             }
                         } else if(x.account.type != 'sink' && x.target.type == 'sink') {
                             self.tags[i].totalExpense += Number(x.amount)
-                            x.mark = 'expense';
+                            x.mark = 'expense'
                         } else if(x.account.type == 'sink' && x.target.type != 'sink') {
                             self.tags[i].totalIncome += Number(x.amount)
-                            x.mark = 'income';
+                            x.mark = 'income'
                         }
                     }
                 }
@@ -290,7 +297,11 @@ export default {
             self.$set(self.cursor, 'month', date.getMonth() + 1)
             self.$set(self.cursor, 'year', date.getFullYear())
 
-            self.loadData()
+            // Postpone the api request one second into the future to avoid rapid-firing requests
+            clearTimeout(self.loadTimeout)
+            self.loadTimeout = setTimeout(function() {
+                self.loadData()
+            }, 500)
         },
 
         nextMonth: function() {
@@ -302,20 +313,29 @@ export default {
             self.$set(self.cursor, 'month', date.getMonth() + 1)
             self.$set(self.cursor, 'year', date.getFullYear())
 
-            self.loadData()
+            // Postpone the api request one second into the future to avoid rapid-firing requests
+            clearTimeout(self.loadTimeout)
+            self.loadTimeout = setTimeout(function() {
+                self.loadData()
+            }, 500)
         },
 
         sortTags: function(type, tags) {
-            var sortable = {};
+            var sortable = {}
+
+            // Get all tags
             for(var t in tags) {
                 if(type == 'i') {
+                    // Only take income
                     sortable[t] = tags[t].totalIncome
                 }
                 else if(type == 'e') {
+                    // Only take expenses
                     sortable[t] = tags[t].totalExpense
                 }
             }
 
+            // sort keys
             var keysSorted = Object.keys(sortable).sort(function(a,b){return sortable[b]-sortable[a]})
 
             var sorted = {}
@@ -345,11 +365,11 @@ export default {
         },
 
         toggleTransactionsVisibility: function(which, tagName) {
-            var transactionsVisibility;
+            var transactionsVisibility
             if(which == 'e') {
-                transactionsVisibility = this.expenseTransactionsVisibility;
+                transactionsVisibility = this.expenseTransactionsVisibility
             } else if(which == 'i') {
-                transactionsVisibility = this.incomeTransactionsVisibility;
+                transactionsVisibility = this.incomeTransactionsVisibility
             }
             if(!transactionsVisibility.includes(tagName)) {
                 transactionsVisibility.push(tagName)
@@ -363,7 +383,7 @@ export default {
             let income = !isNaN(this.totalIncome) ? this.totalIncome : 0
             let expense = !isNaN(this.totalExpense) ? this.totalExpense : 0
             let percentage = ((income / (income + expense)) * 100)
-            return !isNaN(percentage) ? (Math.round(percentage * 100) / 100) : 50;
+            return !isNaN(percentage) ? (Math.round(percentage * 100) / 100) : 50
         },
         expensePercentage: function() {
             let income = this.incomePercentage
