@@ -11,4 +11,5 @@ npm run prod
 
 ## Components
 Uses these third party vue components:
-[kevinongko/vue-numeric](https://github.com/kevinongko/vue-numeric/), [matiastucci/vue-input-tag](https://github.com/matiastucci/vue-input-tag).
+[kevinongko/vue-numeric](https://github.com/kevinongko/vue-numeric/), [matiastucci/vue-input-tag](https://github.com/matiastucci/vue-input-tag),
+[charliekassel/vuejs-datepicker](https://github.com/charliekassel/vuejs-datepicker).
