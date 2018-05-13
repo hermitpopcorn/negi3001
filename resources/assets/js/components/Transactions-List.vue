@@ -16,7 +16,12 @@
                     <i class="fa fa-angle-left"></i>
                 </div>
                 <div class="column is-paddingless has-text-centered">
-                    {{ cursor.month | date('month') }} {{ cursor.year }}
+                    <datepicker v-model="dateJumper"
+                        minimum-view='month' format='MMMM yyyy'
+                        input-class="datepicker" @input="changedDatepicker"
+                        calendar-class="calendar"
+                        >
+                    </datepicker>
                 </div>
                 <div class="column is-paddingless is-one-quarter has-text-centered" v-on:click="nextMonth">
                     <i class="fa fa-angle-right"></i>
@@ -96,11 +101,13 @@
 <script>
 import VueScrollTo from 'vue-scrollto'
 import Transaction from './display/Transaction.vue'
+import Datepicker from 'vuejs-datepicker'
 
 export default {
     name: 'transactions-list',
     components: {
-        Transaction
+        Transaction,
+        Datepicker
     },
     props: ['year', 'month', 'transactionUID', 'tag'],
     data: function() {
@@ -111,6 +118,7 @@ export default {
             periodBalance: 0,
             currentBalance: 0,
             cursor: { },
+            dateJumper: new Date(),
             totalIncome: 0,
             totalExpense: 0,
             loadTimeout: null
@@ -268,6 +276,9 @@ export default {
             self.$set(self.cursor, 'month', date.getMonth() + 1)
             self.$set(self.cursor, 'year', date.getFullYear())
 
+            // Apply to datepicker
+            self.dateJumper = date;
+
             let prev = new Date(date.getTime())
             prev.setDate(0)
             // Postpone the api request one second into the future to avoid rapid-firing requests
@@ -292,13 +303,39 @@ export default {
             self.$set(self.cursor, 'month', date.getMonth() + 1)
             self.$set(self.cursor, 'year', date.getFullYear())
 
-            let next = new Date(date.getTime())
-            next.setDate(0)
+            // Apply to datepicker
+            self.dateJumper = date;
+
+            let prev = new Date(date.getTime())
+            prev.setDate(0)
             // Postpone the api request one second into the future to avoid rapid-firing requests
             clearTimeout(self.loadTimeout)
             self.loadTimeout = setTimeout(function() {
                 // Get the starting balance by getting the balance up to the next month
-                self.getPeriodBalance(next.getFullYear(), next.getMonth() + 1, next.getDate())
+                self.getPeriodBalance(prev.getFullYear(), prev.getMonth() + 1, prev.getDate())
+                // Get the transactions for the month
+                self.getTransactions({ 'year': date.getFullYear(), 'month': date.getMonth() + 1}, function() { self.calculatePeriodBalance() })
+            }, 500)
+        },
+
+        changedDatepicker: function(date) {
+            self = this
+
+            if(date == null || self.range == 'alltime') {
+                return false
+            }
+
+            // Set the new cursor
+            self.$set(self.cursor, 'month', date.getMonth() + 1)
+            self.$set(self.cursor, 'year', date.getFullYear())
+
+            let prev = new Date(date.getTime())
+            prev.setDate(0)
+            // Postpone the api request one second into the future to avoid rapid-firing requests
+            clearTimeout(self.loadTimeout)
+            self.loadTimeout = setTimeout(function() {
+                // Get the starting balance by getting the balance up to the previous month
+                self.getPeriodBalance(prev.getFullYear(), prev.getMonth() + 1, prev.getDate())
                 // Get the transactions for the month
                 self.getTransactions({ 'year': date.getFullYear(), 'month': date.getMonth() + 1}, function() { self.calculatePeriodBalance() })
             }, 500)

@@ -1,14 +1,37 @@
 <template>
     <section class="section">
+        <div class="is-clearfix has-margin-bottom-10">
+            <div class="is-pulled-right">
+                <span class="button">Range</span>
+                <button class="button is-link" v-on:click="setRange('monthly')">Monthly</button>
+                <button class="button is-link" v-on:click="setRange('yearly')">Yearly</button>
+                <button class="button is-link" v-on:click="setRange('alltime')">All time</button>
+                <span class="button">Sorted by</span>
+                <button class="button is-primary" v-on:click="setSorting('date-desc')">Date</button>
+                <button class="button is-primary" v-on:click="setSorting('amount-desc')">Amount</button>
+            </div>
+        </div>
+
         <div class="box">
             <div class="columns is-mobile">
-                <div class="column is-paddingless is-one-quarter has-text-centered" v-on:click="previousMonth">
+                <div class="column is-paddingless is-one-quarter has-text-centered" v-on:click="previousTimeFrame">
                     <i class="fa fa-angle-left"></i>
                 </div>
                 <div class="column is-paddingless has-text-centered">
-                    {{ cursor.month | date('month') }} {{ cursor.year }}
+                    <template v-if="range == 'monthly' || range == 'yearly'">
+                        <datepicker v-model="dateJumper"
+                            :minimum-view="range == 'monthly' ? 'month' : 'year'"
+                            :format="range == 'monthly' ? 'MMMM yyyy' : 'yyyy'"
+                            input-class="datepicker" @input="changedDatepicker"
+                            calendar-class="calendar"
+                            >
+                        </datepicker>
+                    </template>
+                    <template v-if="range == 'alltime'">
+                        All time
+                    </template>
                 </div>
-                <div class="column is-paddingless is-one-quarter has-text-centered" v-on:click="nextMonth">
+                <div class="column is-paddingless is-one-quarter has-text-centered" v-on:click="nextTimeFrame">
                     <i class="fa fa-angle-right"></i>
                 </div>
             </div>
@@ -79,7 +102,7 @@
                         <transition name="slide-fade">
                             <li v-show="expenseTransactionsVisibility.includes(tagName)">
                                 <template v-for="(transaction, index) in tag.transactions">
-                                    <transaction :class="transaction.type" :transaction="transaction" v-if="transaction.mark == 'expense'" @updated="onTransactionUpdated()"></transaction>
+                                    <transaction :class="transaction.type" :transaction="transaction" :displayDate="true" v-if="transaction.mark == 'expense'" @updated="onTransactionUpdated()"></transaction>
                                 </template>
                             </li>
                         </transition>
@@ -105,7 +128,7 @@
                         <transition name="slide-fade">
                             <li v-show="incomeTransactionsVisibility.includes(tagName)">
                                 <template v-for="(transaction, index) in tag.transactions">
-                                    <transaction :class="transaction.type" :transaction="transaction" v-if="transaction.mark == 'income'" @updated="onTransactionUpdated()"></transaction>
+                                    <transaction :class="transaction.type" :transaction="transaction" :displayDate="true" v-if="transaction.mark == 'income'" @updated="onTransactionUpdated()"></transaction>
                                 </template>
                             </li>
                         </transition>
@@ -134,15 +157,19 @@
 
 <script>
 import Transaction from './display/Transaction.vue'
+import Datepicker from 'vuejs-datepicker'
 
 export default {
-    name: 'stats-monthly',
+    name: 'statistics',
     components: {
-        Transaction
+        Transaction,
+        Datepicker
     },
     data: function() {
         return {
             block: false,
+            range: 'monthly',
+            sorting: 'date-desc',
             totalIncome: "Loading...",
             totalExpense: "Loading...",
             tags: {},
@@ -151,6 +178,7 @@ export default {
             transactions: [],
             expenseTransactionsVisibility: [],
             incomeTransactionsVisibility: [],
+            dateJumper: new Date(),
             cursor: { },
             loadTimeout: null
         }
@@ -175,12 +203,31 @@ export default {
         self.loadData()
     },
     methods: {
+        setRange: function(range) {
+            if(range === 'monthly' || range === 'yearly' || range === 'alltime') {
+                this.range = range
+
+                this.loadData()
+            }
+        },
+        setSorting: function(sorting) {
+            if(sorting === 'date-desc' || sorting === 'amount-desc') {
+                this.sorting = sorting
+
+                this.loadData()
+            }
+        },
+
         getTotalIncome: function(year, month) {
             var self = this
 
             self.totalIncome = "Loading..."
 
-            self.$http.get('api/stats/income/'+year+'/'+month).then(response => {
+            var url = 'api/stats/income/'+year+'/'+month;
+            if(self.range == 'yearly') { url = 'api/stats/income/'+year }
+            if(self.range == 'alltime') { url = 'api/stats/income' }
+
+            self.$http.get(url).then(response => {
                 self.totalIncome = response.body.income
             }, response => {
                 self.totalIncome = "???"
@@ -192,7 +239,11 @@ export default {
 
             self.totalExpense = "Loading..."
 
-            self.$http.get('api/stats/expense/'+year+'/'+month).then(response => {
+            var url = 'api/stats/expense/'+year+'/'+month;
+            if(self.range == 'yearly') { url = 'api/stats/expense/'+year }
+            if(self.range == 'alltime') { url = 'api/stats/expense' }
+
+            self.$http.get(url).then(response => {
                 self.totalExpense = response.body.expense
             }, response => {
                 self.totalExpense = "???"
@@ -206,7 +257,11 @@ export default {
             self.tags = {}
             self.transactions = []
 
-            self.$http.get('api/transactions', { 'params': { 'year': year, 'month': month } }).then(response => {
+            var params = {}
+            if(self.range == 'yearly' || self.range == 'monthly') { params.year = year }
+            if(self.range == 'monthly') { params.month = month }
+
+            self.$http.get('api/transactions', { 'params': params }).then(response => {
                 self.transactions = response.body.transactions
                 self.organizeTags(self.transactions)
                 self.block = false
@@ -267,6 +322,10 @@ export default {
                         }
                     }
                 }
+
+                if(self.sorting == 'amount-desc') {
+                    self.tags[i].transactions.sort(function(a,b) {return b.amount - a.amount})
+                }
             }
 
             self.sortedExpenseTags = self.sortTags('e', self.tags)
@@ -287,15 +346,28 @@ export default {
             this.getTransactions(this.cursor.year, this.cursor.month)
         },
 
-        previousMonth: function() {
+        previousTimeFrame: function() {
             var self = this
 
+            // do nothing on all time
+            if(self.range == 'alltime') {
+                return true;
+            }
+
             var date = new Date(self.cursor.year + "-" + self.cursor.month)
-            date.setDate(0)
+
+            if(self.range == 'monthly') {
+                date.setDate(0)
+            } else if(self.range == 'yearly') {
+                date.setYear(date.getFullYear() - 1);
+            }
 
             // Set the new cursor
             self.$set(self.cursor, 'month', date.getMonth() + 1)
             self.$set(self.cursor, 'year', date.getFullYear())
+
+            // Apply to datepicker
+            self.dateJumper = date;
 
             // Postpone the api request one second into the future to avoid rapid-firing requests
             clearTimeout(self.loadTimeout)
@@ -304,12 +376,43 @@ export default {
             }, 500)
         },
 
-        nextMonth: function() {
+        nextTimeFrame: function() {
             var self = this
 
-            var date = new Date(self.cursor.year + "-" + self.cursor.month)
-            date.setMonth(date.getMonth()+1)
+            // do nothing on all time
+            if(self.range == 'alltime') {
+                return true;
+            }
 
+            var date = new Date(self.cursor.year + "-" + self.cursor.month)
+
+            if(self.range == 'monthly') {
+                date.setMonth(date.getMonth()+1)
+            } else if(self.range == 'yearly') {
+                date.setYear(date.getFullYear() + 1);
+            }
+
+            self.$set(self.cursor, 'month', date.getMonth() + 1)
+            self.$set(self.cursor, 'year', date.getFullYear())
+
+            // Apply to datepicker
+            self.dateJumper = date;
+
+            // Postpone the api request one second into the future to avoid rapid-firing requests
+            clearTimeout(self.loadTimeout)
+            self.loadTimeout = setTimeout(function() {
+                self.loadData()
+            }, 500)
+        },
+
+        changedDatepicker: function(date) {
+            self = this
+
+            if(date == null || self.range == 'alltime') {
+                return false
+            }
+
+            // Set the new cursor
             self.$set(self.cursor, 'month', date.getMonth() + 1)
             self.$set(self.cursor, 'year', date.getFullYear())
 

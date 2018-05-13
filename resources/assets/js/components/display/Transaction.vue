@@ -2,8 +2,8 @@
     <div class="transaction" :id="transaction.uid">
         <div class="transaction-head">
             <div class="actions">
-                <router-link :to="{ path: '/transactions/edit/'+transaction.uid }"><i class="fa fa-pencil"></i></router-link>
-                <a href="javascript:;" @click="deleteTransaction(transaction.uid)"><i class="fa fa-remove"></i></a>
+                <router-link :to="{ path: '/transactions/edit/'+transaction.uid }"><i class="fa fa-pencil"></i> edit</router-link> |
+                <a href="javascript:;" @click="deleteTransaction(transaction.uid)"><i class="fa fa-remove"></i> remove</a>
             </div>
             <span class="account" v-if="transaction.type !== 'x'">{{ transaction.account.name }}</span>
             <span class="account" v-if="transaction.type === 'x'">

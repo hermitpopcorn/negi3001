@@ -65,9 +65,9 @@ export var routes = [
         component: require('./components/Accounts.vue')
     },
     {
-        path: '/stats/monthly',
-        name: 'stats.monthly',
-        component: require('./components/Stats-Monthly.vue')
+        path: '/stats',
+        name: 'statistics',
+        component: require('./components/Statistics.vue')
     },
     {
         path: '*',
