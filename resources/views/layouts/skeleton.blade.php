@@ -18,57 +18,55 @@
         <link href="{{ asset('css/app.css') }}" rel="stylesheet">
     </head>
     <body>
-        <div id="app">
-            <nav class="navbar">
-                <div class="container">
-                    <div class="navbar-brand">
-                        <a href="{{ url('/app') }}" class="navbar-item">
-                            <span class="is-blue">&#9679;</span>
-                            <span class="is-red">&#9679;</span>
-                            <span class="is-green">&#9679;</span>
-                            <b>negi3001</b>
-                        </a>
-                        <div class="navbar-item">
-                            <span class="is-grey-light">v{{ config('app.version', '1.0.0') }}</span>
-                        </div>
-
-                        <div class="navbar-burger burger" data-target="navMenu">
-                            <span></span>
-                            <span></span>
-                            <span></span>
-                        </div>
+        <nav class="navbar">
+            <div class="container">
+                <div class="navbar-brand">
+                    <a href="{{ url('/app') }}" class="navbar-item">
+                        <span class="is-blue">&#9679;</span>
+                        <span class="is-red">&#9679;</span>
+                        <span class="is-green">&#9679;</span>
+                        <b>negi3001</b>
+                    </a>
+                    <div class="navbar-item">
+                        <span class="is-grey-light">v{{ config('app.version', '1.0.0') }}</span>
                     </div>
 
-                    <div class="navbar-menu" id="navMenu">
-                        <div class="navbar-start"></div>
-
-                        <div class="navbar-end">
-                            @if (Auth::guest())
-                                <a class="navbar-item " href="{{ route('login') }}">Login</a>
-                                <a class="navbar-item " href="{{ route('register') }}">Register</a>
-                            @else
-                                <div class="navbar-item has-dropdown is-hoverable">
-                                    <a class="navbar-link" href="#">{{ Auth::user()->name }}</a>
-
-                                    <div class="navbar-dropdown">
-                                        <a class="navbar-item" href="{{ route('logout') }}"
-                                           onclick="event.preventDefault();document.getElementById('logout-form').submit();">
-                                            Logout
-                                        </a>
-
-                                        <form id="logout-form" action="{{ route('logout') }}" method="POST"
-                                              style="display: none;">
-                                            {{ csrf_field() }}
-                                        </form>
-                                    </div>
-                                </div>
-                            @endif
-                        </div>
+                    <div class="navbar-burger burger" data-target="navMenu">
+                        <span></span>
+                        <span></span>
+                        <span></span>
                     </div>
                 </div>
-            </nav>
-            @yield('content')
-        </div>
+
+                <div class="navbar-menu" id="navMenu">
+                    <div class="navbar-start"></div>
+
+                    <div class="navbar-end">
+                        @if (Auth::guest())
+                            <a class="navbar-item " href="{{ route('login') }}">Login</a>
+                            <a class="navbar-item " href="{{ route('register') }}">Register</a>
+                        @else
+                            <div class="navbar-item has-dropdown is-hoverable">
+                                <a class="navbar-link" href="#">{{ Auth::user()->name }}</a>
+
+                                <div class="navbar-dropdown">
+                                    <a class="navbar-item" href="{{ route('logout') }}"
+                                       onclick="event.preventDefault();document.getElementById('logout-form').submit();">
+                                        Logout
+                                    </a>
+
+                                    <form id="logout-form" action="{{ route('logout') }}" method="POST"
+                                          style="display: none;">
+                                        {{ csrf_field() }}
+                                    </form>
+                                </div>
+                            </div>
+                        @endif
+                    </div>
+                </div>
+            </div>
+        </nav>
+        @yield('content')
 
         <!-- Scripts -->
         <script src="{{ asset('js/app.js') }}"></script>
