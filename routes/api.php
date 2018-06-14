@@ -13,28 +13,31 @@ use Illuminate\Http\Request;
 |
 */
 
+Route::post('/login', 'UserController@login');
+Route::post('/register', 'UserController@register');
+
 Route::middleware('auth:api')->group(function () {
 
     // User
     Route::get('/user', function (Request $request) { return $request->user(); });
 
     // Stats
-    Route::get('/stats/balance/{account?}/{date?}', 'Api\StatsController@getBalance');
-    Route::get('/stats/expense/{year?}/{month?}/{day?}', 'Api\StatsController@getExpense');
-    Route::get('/stats/income/{year?}/{month?}/{day?}', 'Api\StatsController@getIncome');
+    Route::get('/stats/balance/{account?}/{date?}', 'StatsController@getBalance');
+    Route::get('/stats/expense/{year?}/{month?}/{day?}', 'StatsController@getExpense');
+    Route::get('/stats/income/{year?}/{month?}/{day?}', 'StatsController@getIncome');
 
     // Transactions
-    Route::get('/transactions', 'Api\TransactionController@fetch');
-    Route::get('/transactions/{transaction}', 'Api\TransactionController@show');
-    Route::post('/transactions', 'Api\TransactionController@store');
-    Route::match(['put', 'patch'], '/transactions/{transaction}', 'Api\TransactionController@patch');
-    Route::delete('/transactions/{transaction}', 'Api\TransactionController@remove');
+    Route::get('/transactions', 'TransactionController@fetch');
+    Route::get('/transactions/{transaction}', 'TransactionController@show');
+    Route::post('/transactions', 'TransactionController@store');
+    Route::match(['put', 'patch'], '/transactions/{transaction}', 'TransactionController@patch');
+    Route::delete('/transactions/{transaction}', 'TransactionController@remove');
 
     // Accounts
-    Route::get('/accounts', 'Api\AccountController@fetch');
-    Route::get('/accounts/{transaction}', 'Api\AccountController@show');
-    Route::post('/accounts', 'Api\AccountController@store');
-    Route::match(['put', 'patch'], '/accounts/{transaction}', 'Api\AccountController@patch');
-    Route::delete('/accounts/{transaction}', 'Api\AccountController@remove');
+    Route::get('/accounts', 'AccountController@fetch');
+    Route::get('/accounts/{transaction}', 'AccountController@show');
+    Route::post('/accounts', 'AccountController@store');
+    Route::match(['put', 'patch'], '/accounts/{transaction}', 'AccountController@patch');
+    Route::delete('/accounts/{transaction}', 'AccountController@remove');
 
 });

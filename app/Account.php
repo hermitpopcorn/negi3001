@@ -41,10 +41,10 @@ class Account extends Model
 
     public static function createDefaultAccountForUser($user)
     {
-        return self::store($user, "Wallet", 0, false);
+        self::store($user, "Bank", 0, 'regular');
     }
 
-    public static function store($user, $name, $initialBalance, $type, $ordering = 0)
+    public static function store($user, $name, $initialBalance = 0, $type = 'regular', $ordering = 0)
     {
         $account = new self();
 

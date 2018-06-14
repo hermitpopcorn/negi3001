@@ -1,101 +1,103 @@
 <template>
-    <section class="section">
-        <div class="is-clearfix has-margin-bottom-10">
-            <div class="is-pulled-left" v-if="tag">
-                <router-link :to="'/transactions/list'" class="button is-link" exact><i class="fa fa-list"></i> Back to Monthly List</router-link>
+    <div class="container app-body">
+        <section class="section">
+            <div class="is-clearfix has-margin-bottom-10">
+                <div class="is-pulled-left" v-if="tag">
+                    <router-link :to="'/transactions/list'" class="button is-link" exact><i class="fa fa-list"></i> Back to Monthly List</router-link>
+                </div>
+                <div class="is-pulled-right">
+                    <router-link :to="'/transactions/add'" class="button is-primary" exact><i class="fa fa-pencil-square-o"></i> Add New Transaction</router-link>
+                    <router-link :to="'/transactions/search'" class="button is-link" exact><i class="fa fa-search"></i> Search</router-link>
+                </div>
             </div>
-            <div class="is-pulled-right">
-                <router-link :to="'/transactions/add'" class="button is-primary" exact><i class="fa fa-pencil-square-o"></i> Add New Transaction</router-link>
-                <router-link :to="'/transactions/search'" class="button is-link" exact><i class="fa fa-search"></i> Search</router-link>
-            </div>
-        </div>
 
-        <div class="box" v-if="!tag">
-            <div class="columns is-mobile">
-                <div class="column is-paddingless is-one-quarter has-text-centered" v-on:click="previousMonth">
-                    <i class="fa fa-angle-left"></i>
-                </div>
-                <div class="column is-paddingless has-text-centered">
-                    <datepicker v-model="dateJumper"
-                        minimum-view='month' format='MMMM yyyy'
-                        input-class="datepicker" @input="changedDatepicker"
-                        calendar-class="calendar"
-                        >
-                    </datepicker>
-                </div>
-                <div class="column is-paddingless is-one-quarter has-text-centered" v-on:click="nextMonth">
-                    <i class="fa fa-angle-right"></i>
-                </div>
-            </div>
-        </div>
-
-        <div class="box" v-if="!tag">
-            <div class="transaction b">
-                <div class="transaction-body white">
-                    <span>Balance</span>
-                    <h1 v-html="$options.filters.currency(currentBalance)"/>
+            <div class="box" v-if="!tag">
+                <div class="columns is-mobile">
+                    <div class="column is-paddingless is-one-quarter has-text-centered" v-on:click="previousMonth">
+                        <i class="fa fa-angle-left"></i>
+                    </div>
+                    <div class="column is-paddingless has-text-centered">
+                        <datepicker v-model="dateJumper"
+                            minimum-view='month' format='MMMM yyyy'
+                            input-class="datepicker" @input="changedDatepicker"
+                            calendar-class="calendar"
+                            >
+                        </datepicker>
+                    </div>
+                    <div class="column is-paddingless is-one-quarter has-text-centered" v-on:click="nextMonth">
+                        <i class="fa fa-angle-right"></i>
+                    </div>
                 </div>
             </div>
-        </div>
 
-        <div class="box-group">
             <div class="box" v-if="!tag">
                 <div class="transaction b">
                     <div class="transaction-body white">
-                        <span>Balance at the end of the period</span>
-                        <h1 v-html="$options.filters.currency(periodBalance)"/>
+                        <span>Balance</span>
+                        <h1 v-html="$options.filters.currency(currentBalance)"/>
                     </div>
                 </div>
             </div>
-            <div class="box" v-if="tag">
-                <h2 class="has-text-centered">Showing all transactions marked <span class="is-blue">#{{ tag }}</span></h2>
-            </div>
-            <div class="box">
-                <template v-for="(transaction, index) in transactions">
-                    <div class="transaction-separator" v-if="index == 0 || transactions[index - 1].date.split(' ')[0] != transaction.date.split(' ')[0]">{{ transaction.date.split(' ')[0] | date }}</div>
-                    <transaction :class="transaction.type" :transaction="transaction" @updated="onTransactionUpdated()"></transaction>
-                </template>
-                <template v-if="transactions.length < 1">
-                    <div class="has-text-centered">
-                        <template v-if="!tag">
-                            No transactions recorded in this time frame.
-                        </template>
-                        <template v-else>
-                            No transactions found.
-                        </template>
-                    </div>
-                </template>
-            </div>
-            <div class="box" v-if="!tag" id="bontang">
-                <div class="transaction b">
-                    <div class="transaction-body white">
-                        <span>Starting balance</span>
-                        <h1 v-html="$options.filters.currency(startingBalance)"/>
-                    </div>
-                </div>
-            </div>
-            <div class="box" v-if="tag">
-                <div class="columns">
-                    <div class="column is-half">
-                        <div class="transaction i">
-                            <div class="transaction-body white">
-                                <span>Total tagged income</span>
-                                <h1 v-html="$options.filters.currency(totalIncome)"/>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="column is-half">
-                        <div class="transaction e">
-                            <div class="transaction-body white">
-                                <span>Total tagged expense</span>
-                                <h1 v-html="$options.filters.currency(totalExpense)"/>
-                            </div>
+
+            <div class="box-group">
+                <div class="box" v-if="!tag">
+                    <div class="transaction b">
+                        <div class="transaction-body white">
+                            <span>Balance at the end of the period</span>
+                            <h1 v-html="$options.filters.currency(periodBalance)"/>
                         </div>
                     </div>
                 </div>
+                <div class="box" v-if="tag">
+                    <h2 class="has-text-centered">Showing all transactions marked <span class="is-blue">#{{ tag }}</span></h2>
+                </div>
+                <div class="box">
+                    <template v-for="(transaction, index) in transactions">
+                        <div class="transaction-separator" v-if="index == 0 || transactions[index - 1].date.split(' ')[0] != transaction.date.split(' ')[0]">{{ transaction.date.split(' ')[0] | date }}</div>
+                        <transaction :class="transaction.type" :transaction="transaction" @updated="onTransactionUpdated()"></transaction>
+                    </template>
+                    <template v-if="transactions.length < 1">
+                        <div class="has-text-centered">
+                            <template v-if="!tag">
+                                No transactions recorded in this time frame.
+                            </template>
+                            <template v-else>
+                                No transactions found.
+                            </template>
+                        </div>
+                    </template>
+                </div>
+                <div class="box" v-if="!tag" id="bontang">
+                    <div class="transaction b">
+                        <div class="transaction-body white">
+                            <span>Starting balance</span>
+                            <h1 v-html="$options.filters.currency(startingBalance)"/>
+                        </div>
+                    </div>
+                </div>
+                <div class="box" v-if="tag">
+                    <div class="columns">
+                        <div class="column is-half">
+                            <div class="transaction i">
+                                <div class="transaction-body white">
+                                    <span>Total tagged income</span>
+                                    <h1 v-html="$options.filters.currency(totalIncome)"/>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="column is-half">
+                            <div class="transaction e">
+                                <div class="transaction-body white">
+                                    <span>Total tagged expense</span>
+                                    <h1 v-html="$options.filters.currency(totalExpense)"/>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </div>
-        </div>
-    </section>
+        </section>
+    </div>
 </template>
 
 <script>
@@ -166,8 +168,8 @@ export default {
         getBalance: function() {
             var self = this
             self.currentBalance = 0
-            self.$http.get('api/stats/balance/all').then(response => {
-                self.currentBalance = response.body.balance
+            axios.get('api/stats/balance/all').then(response => {
+                self.currentBalance = response.data.balance
             }, response => {
                 self.currentBalance = 0
             })
@@ -176,8 +178,8 @@ export default {
         getPeriodBalance: function(year, month, day) {
             var self = this
             self.startingBalance = 0
-            self.$http.get('api/stats/balance/all/'+year+'-'+month+'-'+day).then(response => {
-                self.startingBalance = response.body.balance
+            axios.get('api/stats/balance/all/'+year+'-'+month+'-'+day).then(response => {
+                self.startingBalance = response.data.balance
                 self.calculatePeriodBalance()
             }, response => {
                 self.startingBalance = 0
@@ -189,8 +191,8 @@ export default {
 
             self.block = true
             self.transactions = []
-            self.$http.get('api/transactions', { 'params':  params }).then(response => {
-                self.transactions = response.body.transactions
+            axios.get('api/transactions', { 'params':  params }).then(response => {
+                self.transactions = response.data.transactions
                 self.block = false
                 callback()
             }, response => {

@@ -1,86 +1,88 @@
 <template>
-    <section class="section">
-        <div class="is-clearfix has-margin-bottom-10">
-            <div class="is-pulled-left">
-                <router-link :to="'/transactions/list'" class="button is-link" exact><i class="fa fa-list"></i> Back to Transactions List</router-link>
+    <div class="container app-body">
+        <section class="section">
+            <div class="is-clearfix has-margin-bottom-10">
+                <div class="is-pulled-left">
+                    <router-link :to="'/transactions/list'" class="button is-link" exact><i class="fa fa-list"></i> Back to Transactions List</router-link>
+                </div>
             </div>
-        </div>
 
-        <div class="box" :class="accentType">
-            <form>
-                <div class="field">
-                    <label class="label">Type</label>
-                    <div class="switch-field">
-                        <input id="type-i" type="radio" name="switch_3" value="i" v-model="form.type"/>
-                        <label class="i" for="type-i">Income</label>
-                        <input id="type-e" type="radio" name="switch_3" value="e" v-model="form.type"/>
-                        <label class="e" for="type-e">Expense</em></label>
-                        <input id="type-x" type="radio" name="switch_3" value="x" v-model="form.type"/>
-                        <label class="x" for="type-x">Transfer</label>
+            <div class="box" :class="accentType">
+                <form>
+                    <div class="field">
+                        <label class="label">Type</label>
+                        <div class="switch-field">
+                            <input id="type-i" type="radio" name="switch_3" value="i" v-model="form.type"/>
+                            <label class="i" for="type-i">Income</label>
+                            <input id="type-e" type="radio" name="switch_3" value="e" v-model="form.type"/>
+                            <label class="e" for="type-e">Expense</em></label>
+                            <input id="type-x" type="radio" name="switch_3" value="x" v-model="form.type"/>
+                            <label class="x" for="type-x">Transfer</label>
+                        </div>
                     </div>
-                </div>
-                <div class="columns">
-                    <div class="column is-half">
-                        <div class="field">
-                            <label class="label">Account</label>
-                            <div class="control is-expanded">
-                                <div class="select is-fullwidth">
-                                    <select v-model="form.account">
-                                        <template v-for="i in accounts">
-                                            <option :value="i.uid">{{ i.name }}</option>
-                                        </template>
-                                    </select>
+                    <div class="columns">
+                        <div class="column is-half">
+                            <div class="field">
+                                <label class="label">Account</label>
+                                <div class="control is-expanded">
+                                    <div class="select is-fullwidth">
+                                        <select v-model="form.account">
+                                            <template v-for="i in accounts">
+                                                <option :value="i.uid">{{ i.name }}</option>
+                                            </template>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="column is-half" v-if="form.type === 'x'">
+                            <div class="field">
+                                <label class="label">Transfer to</label>
+                                <div class="control is-expanded">
+                                    <div class="select is-fullwidth">
+                                        <select v-model="form.target">
+                                            <template v-for="i in accounts">
+                                                <option :value="i.uid">{{ i.name }}</option>
+                                            </template>
+                                        </select>
+                                    </div>
                                 </div>
                             </div>
                         </div>
                     </div>
-                    <div class="column is-half" v-if="form.type === 'x'">
-                        <div class="field">
-                            <label class="label">Transfer to</label>
-                            <div class="control is-expanded">
-                                <div class="select is-fullwidth">
-                                    <select v-model="form.target">
-                                        <template v-for="i in accounts">
-                                            <option :value="i.uid">{{ i.name }}</option>
-                                        </template>
-                                    </select>
-                                </div>
-                            </div>
+                    <div class="field">
+                        <label class="label">Amount</label>
+                        <div class="control">
+                            <vue-numeric class="input has-text-right" currency="" separator=" " v-model="form.amount" :minus="false" :precision="2" name="amount"></vue-numeric>
                         </div>
                     </div>
-                </div>
-                <div class="field">
-                    <label class="label">Amount</label>
-                    <div class="control">
-                        <vue-numeric class="input has-text-right" currency="" separator=" " v-model="form.amount" :minus="false" :precision="2" name="amount"></vue-numeric>
+                    <div class="field">
+                        <label class="label">Note</label>
+                        <div class="control">
+                            <textarea class="textarea" v-model="form.note"></textarea>
+                        </div>
                     </div>
-                </div>
-                <div class="field">
-                    <label class="label">Note</label>
-                    <div class="control">
-                        <textarea class="textarea" v-model="form.note"></textarea>
+                    <div class="field">
+                        <label class="label">Date</label>
+                        <div class="control">
+                            <input class="input" type="text" v-model="form.date"></input>
+                        </div>
                     </div>
-                </div>
-                <div class="field">
-                    <label class="label">Date</label>
-                    <div class="control">
-                        <input class="input" type="text" v-model="form.date"></input>
+                    <div class="field">
+                        <label class="label">Tags</label>
+                        <div class="control">
+                            <input-tag class="input" :tags="form.tags"></input-tag>
+                        </div>
                     </div>
-                </div>
-                <div class="field">
-                    <label class="label">Tags</label>
-                    <div class="control">
-                        <input-tag class="input" :tags="form.tags"></input-tag>
+                    <div class="field">
+                        <div class="control has-text-right">
+                            <button class="button is-primary" @click="submit">Save</button>
+                        </div>
                     </div>
-                </div>
-                <div class="field">
-                    <div class="control has-text-right">
-                        <button class="button is-primary" @click="submit">Save</button>
-                    </div>
-                </div>
-            </form>
-        </div>
-    </section>
+                </form>
+            </div>
+        </section>
+    </div>
 </template>
 
 <script>
@@ -117,8 +119,8 @@ export default {
     created: function() {
         var self = this
 
-        self.$http.get('api/accounts').then(response => {
-            self.accounts = response.body.accounts
+        axios.get('api/accounts').then(response => {
+            self.accounts = response.data.accounts
             if(self.temp.account === null) {
                 self.$set(self.form, 'account', self.accounts[0].uid)
             } else {
@@ -132,17 +134,17 @@ export default {
 
         if(typeof self.transaction !== "undefined" && self.transaction !== null) {
             self.$set(self.form, 'block', true)
-            self.$http.get('api/transactions/'+self.transaction).then(response => {
+            axios.get('api/transactions/'+self.transaction).then(response => {
                 self.$set(self.form, 'block', false)
-                self.$set(self.form, 'type', response.body.transaction.type)
-                self.$set(self.form, 'account', response.body.transaction.account.uid)
-                self.$set(self.temp, 'account', response.body.transaction.account.uid)
-                self.$set(self.form, 'target', response.body.transaction.target ? response.body.transaction.target.uid : null)
-                self.$set(self.temp, 'target', response.body.transaction.target ? response.body.transaction.target.uid : null)
-                self.$set(self.form, 'tags', response.body.transaction.tags)
-                self.$set(self.form, 'amount', response.body.transaction.amount)
-                self.$set(self.form, 'note', response.body.transaction.note)
-                self.$set(self.form, 'date', moment(new Date(response.body.transaction.date)).format("YYYY-MM-DD HH:mm"))
+                self.$set(self.form, 'type', response.data.transaction.type)
+                self.$set(self.form, 'account', response.data.transaction.account.uid)
+                self.$set(self.temp, 'account', response.data.transaction.account.uid)
+                self.$set(self.form, 'target', response.data.transaction.target ? response.data.transaction.target.uid : null)
+                self.$set(self.temp, 'target', response.data.transaction.target ? response.data.transaction.target.uid : null)
+                self.$set(self.form, 'tags', response.data.transaction.tags)
+                self.$set(self.form, 'amount', response.data.transaction.amount)
+                self.$set(self.form, 'note', response.data.transaction.note)
+                self.$set(self.form, 'date', moment(new Date(response.data.transaction.date)).format("YYYY-MM-DD HH:mm"))
             }, response => {
                 self.$swal({
                     title: 'Not Found',
@@ -193,8 +195,8 @@ export default {
 
             if(typeof self.transaction == "undefined" || self.transaction == null) {
 
-                self.$http.post('api/transactions', data).then(response => {
-                    var transaction = response.body.transaction;
+                axios.post('api/transactions', data).then(response => {
+                    var transaction = response.data.transaction;
 
                     self.$swal({
                         title: 'Success',
@@ -214,8 +216,8 @@ export default {
                     self.$set(self.form, 'block', false)
                 })
             } else {
-                self.$http.put('api/transactions/'+self.transaction, data).then(response => {
-                    var transaction = response.body.transaction
+                axios.put('api/transactions/'+self.transaction, data).then(response => {
+                    var transaction = response.data.transaction
 
                     self.$swal({
                         title: 'Success',

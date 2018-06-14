@@ -1,112 +1,116 @@
 <template>
-    <section class="section">
-        <div class="columns accounts-list is-multiline">
-            <template v-for="(account, index) in accounts">
-                <div class="column is-one-third">
-                    <div class="account box is-white " :class="account.type">
-                        <div style="position:relative;z-index: 1">
-                            <h1>{{ account.name }}</h1>
-                            <p v-if="account.type != 'sink'">Initial balance: <span class="is-unbreakable" v-html="$options.filters.currency(account.initialBalance)"/></p>
-                            <p v-if="account.type == 'sink'">marked as a money sink</p>
-                        </div>
-                        <div class="symbol">
-                            <template v-if="account.type == 'regular'">
-                                    <i class="fa fa-bank"></i>
-                            </template>
-                            <template v-if="account.type == 'noncurrent'">
-                                <i class="fa fa-anchor"></i>
-                            </template>
-                            <template v-if="account.type == 'sink'">
-                                <i class="fa fa-credit-card"></i>
-                            </template>
-                        </div>
-                        <div class="has-margin-top-10">
-                            <div class="columns">
-                                <div class="column is-half">
-                                    <a class="button is-primary is-fullwidth is-small" @click="editAccount(account.uid)" v-scroll-to="'#account-form-container'"><i class="fa fa-pencil"></i> Edit</a>
-                                </div>
-                                <div class="column is-half">
-                                    <a class="button is-danger is-fullwidth is-small" @click="deleteAccount(account.uid)"><i class="fa fa-remove"></i> Delete</a>
-                                </div>
+    <div class="container app-body">
+        <section class="section">
+            <div class="columns accounts-list is-multiline">
+                <template v-for="(account, index) in accounts">
+                    <div class="column is-one-third">
+                        <div class="account box is-white " :class="account.type">
+                            <div style="position:relative;z-index: 1">
+                                <h1>{{ account.name }}</h1>
+                                <p v-if="account.type != 'sink'">Initial balance: <span class="is-unbreakable" v-html="$options.filters.currency(account.initialBalance)"/></p>
+                                <p v-if="account.type == 'sink'">marked as a money sink</p>
                             </div>
-                        </div>
-                    </div>
-                </div>
-            </template>
-            <div class="column">
-                <div class="account box is-white has-blue-bg" style="cursor:pointer" @click="addNew" v-scroll-to="'#account-form-container'">
-                    <h1>New</h1>
-                    <p>Add new account</p>
-                    <div class="symbol">
-                        <i class="fa fa-plus"></i>
-                    </div>
-                    <div class="small-box-footer">&nbsp;</div>
-                </div>
-            </div>
-        </div>
-
-        <div class="columns" id="account-form-container">
-            <div class="column" v-if="form.show">
-                <div class="box-group accounts-form" id="account-form">
-                    <div class="box has-blue-bg is-white" v-if="form.title">
-                        <div class="is-pulled-right">
-                            <button type="button" class="button is-link" @click="hideForm()"><i class="fa fa-times"></i></button>
-                        </div>
-                        <h1 v-html="form.title" />
-                    </div>
-                    <div class="box">
-                        <form>
-                            <div class="field">
-                                <label class="label">Name</label>
-                                <div class="control is-expanded">
-                                    <input type="text" ref="nameInput" class="input" v-model="form.name"></input>
-                                </div>
+                            <div class="symbol">
+                                <template v-if="account.type == 'regular'">
+                                        <i class="fa fa-bank"></i>
+                                </template>
+                                <template v-if="account.type == 'noncurrent'">
+                                    <i class="fa fa-anchor"></i>
+                                </template>
+                                <template v-if="account.type == 'sink'">
+                                    <i class="fa fa-credit-card"></i>
+                                </template>
                             </div>
-                            <div class="field" v-if="form.type != 'sink'">
-                                <label class="label">Initial Balance</label>
-                                <div class="control is-expanded">
-                                    <vue-numeric ref="initialBalanceInput" class="input text-right" currency="" separator=" " v-model="form.initialBalance" :minus="false" :precision="2" name="initialBalance" :disabled="(form.type == 'sink')"></vue-numeric>
-                                </div>
-                            </div>
-                            <div class="field">
-                                <label class="label">Account</label>
-                                <div class="control is-expanded">
-                                    <div class="select is-fullwidth">
-                                        <select v-model="form.type">
-                                            <option value="regular">Regular</option>
-                                            <option value="noncurrent">Noncurrent</option>
-                                            <option value="sink">Money Sink</option>
-                                        </select>
+                            <div class="has-margin-top-10">
+                                <div class="columns">
+                                    <div class="column is-half">
+                                        <a class="button is-primary is-fullwidth is-small" @click="editAccount(account.uid)" v-scroll-to="'#account-form-container'"><i class="fa fa-pencil"></i> Edit</a>
+                                    </div>
+                                    <div class="column is-half">
+                                        <a class="button is-danger is-fullwidth is-small" @click="deleteAccount(account.uid)"><i class="fa fa-remove"></i> Delete</a>
                                     </div>
                                 </div>
-                                <p class="form-text">
-                                    The amount of balance in accounts marked as <b>noncurrent</b> will not be counted towards
-                                    the statistic total.
-                                    <br/>
-                                    Accounts marked as <b>money sink</b> will not have its current balance shown on the overview page.
-                                    The account's balance, expense, and income will not be counted towards the statistic total,
-                                    also, transfers to the account will be counted as an expense, and transfers from the account
-                                    will be counted as an income.
-                                </p>
                             </div>
-                            <div class="field">
-                                <label class="label">Order</label>
-                                <div class="control is-expanded">
-                                    <input type="numeric" ref="orderInput" class="input" v-model="form.ordering"></input>
-                                </div>
-                                <p class="form-text">
-                                    The account will be ordered in the list based on this number, in ascending order.
-                                </p>
-                            </div>
-                            <div class="field has-text-right">
-                                <button class="button is-primary" @click="submit">Save</button>
-                            </div>
-                        </form>
+                        </div>
+                    </div>
+                </template>
+                <div class="column">
+                    <div class="account box is-white has-blue-bg" style="cursor:pointer" @click="addNew" v-scroll-to="'#account-form-container'">
+                        <h1>New</h1>
+                        <p>Add new account</p>
+                        <div class="symbol">
+                            <i class="fa fa-plus"></i>
+                        </div>
+                        <div class="small-box-footer">&nbsp;</div>
                     </div>
                 </div>
             </div>
-        </div>
-    </section>
+        </section>
+
+        <section class="section">
+            <div class="columns" id="account-form-container">
+                <div class="column" v-if="form.show">
+                    <div class="box-group accounts-form" id="account-form">
+                        <div class="box has-blue-bg is-white" v-if="form.title">
+                            <div class="is-pulled-right">
+                                <button type="button" class="button is-link" @click="hideForm()"><i class="fa fa-times"></i></button>
+                            </div>
+                            <h1 v-html="form.title" />
+                        </div>
+                        <div class="box">
+                            <form>
+                                <div class="field">
+                                    <label class="label">Name</label>
+                                    <div class="control is-expanded">
+                                        <input type="text" ref="nameInput" class="input" v-model="form.name"></input>
+                                    </div>
+                                </div>
+                                <div class="field" v-if="form.type != 'sink'">
+                                    <label class="label">Initial Balance</label>
+                                    <div class="control is-expanded">
+                                        <vue-numeric ref="initialBalanceInput" class="input text-right" currency="" separator=" " v-model="form.initialBalance" :minus="false" :precision="2" name="initialBalance" :disabled="(form.type == 'sink')"></vue-numeric>
+                                    </div>
+                                </div>
+                                <div class="field">
+                                    <label class="label">Account</label>
+                                    <div class="control is-expanded">
+                                        <div class="select is-fullwidth">
+                                            <select v-model="form.type">
+                                                <option value="regular">Regular</option>
+                                                <option value="noncurrent">Noncurrent</option>
+                                                <option value="sink">Money Sink</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                    <p class="form-text">
+                                        The amount of balance in accounts marked as <b>noncurrent</b> will not be counted towards
+                                        the statistic total.
+                                        <br/>
+                                        Accounts marked as <b>money sink</b> will not have its current balance shown on the overview page.
+                                        The account's balance, expense, and income will not be counted towards the statistic total,
+                                        also, transfers to the account will be counted as an expense, and transfers from the account
+                                        will be counted as an income.
+                                    </p>
+                                </div>
+                                <div class="field">
+                                    <label class="label">Order</label>
+                                    <div class="control is-expanded">
+                                        <input type="numeric" ref="orderInput" class="input" v-model="form.ordering"></input>
+                                    </div>
+                                    <p class="form-text">
+                                        The account will be ordered in the list based on this number, in ascending order.
+                                    </p>
+                                </div>
+                                <div class="field has-text-right">
+                                    <button class="button is-primary" @click="submit">Save</button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </div>
 </template>
 
 <script>
@@ -143,8 +147,8 @@ export default {
         getAccounts: function() {
             var self = this
             self.accounts = []
-            self.$http.get('api/accounts').then(response => {
-                self.accounts = response.body.accounts
+            axios.get('api/accounts').then(response => {
+                self.accounts = response.data.accounts
             }, response => {
                 self.accounts = []
             })
@@ -165,13 +169,13 @@ export default {
             var self = this
 
             self.$set(self.form, 'block', true)
-            self.$http.get('api/accounts/'+account).then(response => {
-                this.$set(this.form, 'title', "Edit existing account ("+response.body.account.name+")")
-                self.$set(self.form, 'uid', response.body.account.uid)
-                self.$set(self.form, 'name', response.body.account.name)
-                self.$set(self.form, 'initialBalance', response.body.account.initialBalance)
-                self.$set(self.form, 'type', response.body.account.type)
-                self.$set(self.form, 'ordering', response.body.account.ordering)
+            axios.get('api/accounts/'+account).then(response => {
+                this.$set(this.form, 'title', "Edit existing account ("+response.data.account.name+")")
+                self.$set(self.form, 'uid', response.data.account.uid)
+                self.$set(self.form, 'name', response.data.account.name)
+                self.$set(self.form, 'initialBalance', response.data.account.initialBalance)
+                self.$set(self.form, 'type', response.data.account.type)
+                self.$set(self.form, 'ordering', response.data.account.ordering)
                 self.$set(self.form, 'block', false)
                 self.$set(self.form, 'show', true)
             }, response => {
@@ -196,7 +200,7 @@ export default {
                 confirmButtonText: 'Delete'
             }).then(function(result) {
                 if(result.value === true) {
-                    self.$http.delete('api/accounts/'+account).then(response => {
+                    axios.delete('api/accounts/'+account).then(response => {
                         self.$swal({
                             title: 'Deleted',
                             text: 'Account has been deleted.',
@@ -234,8 +238,8 @@ export default {
 
             if(typeof self.form.uid == "undefined" || self.form.uid == null) {
 
-                self.$http.post('api/accounts', data).then(response => {
-                    var account = response.body.account;
+                axios.post('api/accounts', data).then(response => {
+                    var account = response.data.account;
 
                     self.$swal({
                         title: 'Success',
@@ -257,8 +261,8 @@ export default {
                     self.$set(self.form, 'block', false)
                 })
             } else {
-                self.$http.put('api/accounts/'+self.form.uid, data).then(response => {
-                    var account = response.body.account
+                axios.put('api/accounts/'+self.form.uid, data).then(response => {
+                    var account = response.data.account
 
                     self.$swal({
                         title: 'Success',

@@ -54,7 +54,7 @@ export default {
                 confirmButtonText: 'Delete'
             }).then(function(result) {
                 if(result.value === true) {
-                    self.$http.delete('api/transactions/'+transaction).then(response => {
+                    axios.delete('api/transactions/'+transaction).then(response => {
                         self.$swal({
                             title: 'Deleted',
                             text: 'Transaction has been deleted.',

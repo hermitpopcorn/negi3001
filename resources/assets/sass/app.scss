@@ -1,3 +1,8 @@
+// Fonts
+@import url("https://fonts.googleapis.com/css?family=Saira+Semi+Condensed:300,400,600");
+$fa-font-path: "../fonts/vendor/font-awesome" !default;
+@import "~font-awesome/scss/font-awesome";
+
 // Variables
 @import "bulma";
 @import "color-helper";
@@ -12,6 +17,11 @@
 h1 { font-size: 2em; }
 h2 { font-size: 1.5em; }
 h3 { font-size: 1.25em; }
+
+// Margin from navbar to body
+div.navigation {
+    margin-bottom: 1em;
+}
 
 // Decimal number in number display
 span.decimal {

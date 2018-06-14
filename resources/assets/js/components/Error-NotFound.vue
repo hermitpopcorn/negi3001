@@ -1,8 +1,10 @@
 <template>
-    <section class="section">
-        <h2>Page Not Found</h2>
-        <p>That URL unfortunately doesn't link to anywhere. You can <router-link :to="'/overview'" exact>click here</router-link> to go back to the overview dashboard.</p>
-    </section>
+    <div class="container app-body">
+        <section class="section">
+            <h2>Page Not Found</h2>
+            <p>That URL unfortunately doesn't link to anywhere. Use the links above to get somewhere.</p>
+        </section>
+    </div>
 </template>
 
 <script>
